@@ -5,35 +5,7 @@
     <meta charset="utf-8" />
     <style>
       /* Removes default margins so the p5 canvas fits cleanly */
-      body { margin: 0; padding: 0; overflow: hidden; background-color: #222; }
-      
-      /* Styles the back button */
-      .back-btn {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        padding: 10px 16px;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        text-decoration: none;
-        font-family: sans-serif;
-        font-weight: bold;
-        border-radius: 8px;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        
-        /* THE FADE EFFECT */
-        opacity: 0.15; /* Makes it 85% transparent */
-        transition: all 0.3s ease; /* Smoothly animates the change */
-        z-index: 100;
-      }
-
-      /* What happens when the mouse touches it */
-      .back-btn:hover {
-        opacity: 1; /* Brings it back to 100% solid */
-        background-color: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-      }
+      body { margin: 0; padding: 0; overflow: hidden; background-color: #222;   
       }
     </style>
   </head>
