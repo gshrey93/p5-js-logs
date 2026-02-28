@@ -14,3 +14,179 @@
     </ul>
   </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Coding Portfolio</title>
+  <style>
+    /* Modern CSS Variables & Reset */
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #ffffff;
+      --text-muted: #b0bec5;
+      --accent: #00e5ff; /* A bright neon cyan for hover states */
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    /* Glassmorphism Header */
+    header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 50px auto;
+      padding: 40px 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px); /* For Safari */
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    p.bio {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    /* Modern Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Glass Cards with Hover Glow */
+    .card {
+      text-decoration: none;
+      color: var(--text-main);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* The lift and glow effect when hovering */
+    .card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 15px 30px rgba(0, 229, 255, 0.15);
+    }
+
+    /* The Visual Top Half (Where your thumbnails will go) */
+    .card-image {
+      height: 180px;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      border-bottom: 1px solid var(--card-border);
+      transition: transform 0.3s ease;
+    }
+
+    /* Slight zoom effect on the image container when hovering over the card */
+    .card:hover .card-image {
+      transform: scale(1.02);
+    }
+
+    /* The Info Bottom Half */
+    .card-content {
+      padding: 25px;
+      background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+      flex-grow: 1;
+    }
+
+    .card-title {
+      margin: 0 0 8px 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Category Tag */
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(0, 229, 255, 0.1);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>p5.js Sketch Log</h1>
+    <p class="bio">A continuous exploration of code, art, and interactivity.</p>
+  </header>
+
+  <div class="grid">
+    
+    <a href="sketch-04" class="card">
+      <div class="card-image">🌀</div>
+      <div class="card-content">
+        <span class="tag">Fibonacci Palindromes</span>
+        <h2 class="card-title">Sketch 4: Geometric Loops</h2>
+        <p class="card-desc">Exploring basic geometry, and finding nearest palindrome of Fibonacci numbers.</p>
+      </div>
+    </a>
+
+    <a href="sketch-03/" class="card">
+      <div class="card-image">🕹️</div>
+      <div class="card-content">
+        <span class="tag">Interactive</span>
+        <h2 class="card-title">Project 3: 2D Tank Battle</h2>
+        <p class="card-desc">A classic browser game prototype with user controls.</p>
+      </div>
+    </a>
+
+    <a href="sketch02/" class="card>
+      <div class="card-image"> 🦖</div>
+      <div class="card-content">
+        <span class="tag">Interactive</span>
+        <h2 class="card-title">Sketch 2: The Dinosaur Run</h2>
+        <p class="card-desc">An all time favourite when you have nothing else to do</p>
+      </div>
+    </a>
+  </div>
+
+</body>
+</html>
