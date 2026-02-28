@@ -2,10 +2,38 @@
 <html lang="en">
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8" />
+    <style>
+      /* Removes default margins so the p5 canvas fits cleanly */
+      body { margin: 0; padding: 0; overflow: hidden; background-color: #222; }
+      
+      /* Styles the back button to look like a modern UI element */
+      .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 16px;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        font-family: sans-serif;
+        font-weight: bold;
+        border-radius: 8px;
+        backdrop-filter: blur(5px); /* Gives it a cool frosted glass effect */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+        z-index: 100; /* Ensures it stays on top of the drawing */
+      }
+
+      .back-btn:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+    </style>
   </head>
   <body>
+    <a href="../" class="back-btn">← Back to Gallery</a>
+    
     <script src="sketch.js"></script>
   </body>
 </html>
