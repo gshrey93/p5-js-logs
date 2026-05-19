@@ -103,8 +103,9 @@ function fire(tank) {
     vel: createVector(cos(angleInRadians) * launchSpeed, sin(angleInRadians) * launchSpeed),
     gravity: createVector(0, gravityForce), // Use the dynamic gravity
     ownerId: tank.id,
-    isBigPowerup: isBigShot
-  };
+    isBigPowerup: isBigShot,
+    restingTimer: 0 // Track stationary time
+ };
   
   gameState = "PROJECTILE_AIRBORNE";
 }
@@ -130,6 +131,12 @@ function updateProjectile() {
     if (cell === 2) { 
       currentProjectile.vel.y *= -0.7; 
       currentProjectile.vel.x *= 0.8;
+      
+      // Resting Logic: If velocity is near zero on stone, start timer
+      if (abs(currentProjectile.vel.y) < 0.2 && abs(currentProjectile.vel.x) < 0.2) {
+        currentProjectile.restingTimer++;
+      }
+      
       nextX = currentProjectile.pos.x;
       nextY = currentProjectile.pos.y;
     } else if (cell === 1) { 
@@ -139,6 +146,12 @@ function updateProjectile() {
     }
   }
   
+  // Edge Case: 2 second timeout (~120 frames) if projectile is stuck on stone
+  if (currentProjectile.restingTimer > 120) {
+    switchTurn();
+    return;
+  }
+
   if (isHittingTank(nextX, nextY, tank1) || isHittingTank(nextX, nextY, tank2)) {
     explode(currentProjectile.pos.x, currentProjectile.pos.y);
     switchTurn();
