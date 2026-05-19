@@ -1,7 +1,5 @@
 # p5-js-logs
 All JS browser scripts coded using GenAi chats
-# p5-js-logs
-
 ## Overview
 **p5-js-logs** is a creative coding repository dedicated to "vibe coding" and rapid prototyping. It serves as a collection of small JavaScript utilities, interactive sketches, and games generated with the assistance of various AI models and AI-powered IDEs. The project is purely front-end and is hosted live for immediate interaction.
 
