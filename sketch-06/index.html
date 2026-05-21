@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple calculator PWA with unit conversion">
+  <meta name="theme-color" content="#4a90d9">
+  <title>Calculator</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+  <style>
+    /* === CSS Custom Properties (Theming) === */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f2f2f7;
+      --bg-display: #f8f8fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-display: #1a1a1a;
+      --accent-blue: #4a90d9;
+      --accent-orange: #ff6b35;
+      --button-bg: #e8e8ed;
+      --button-hover: #d1d1d6;
+      --button-text: #1a1a1a;
+      --operator-bg: #4a90d9;
+      --operator-text: #ffffff;
+      --border-color: #e0e0e0;
+      --history-bg: #f8f8fa;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .theme-dark {
+      --bg-primary: #1c1c1e;
+      --bg-secondary: #2c2c2e;
+      --bg-display: #2c2c2e;
+      --text-primary: #f0f0f0;
+      --text-secondary: #aaaaaa;
+      --text-display: #f0f0f0;
+      --accent-blue: #6ab0ff;
+      --accent-orange: #ff8c5a;
+      --button-bg: #3a3a3c;
+      --button-hover: #4a4a4c;
+      --button-text: #f0f0f0;
+      --operator-bg: #6ab0ff;
+      --operator-text: #1a1a1a;
+      --border-color: #3a3a3c;
+      --history-bg: #2c2c2e;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* === Reset & Base === */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0;
+    }
+
+    /* === App Container === */
+    .app {
+      width: 100%;
+      max-width: 400px;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === Header === */
+    .app__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .app__title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .app__theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      line-height: 1;
+    }
+
+    .app__theme-toggle:hover {
+      background: var(--button-bg);
+    }
+
+    .app__theme-toggle:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+
+    /* === Tab Bar === */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-bar__tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tab-bar__tab--active {
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .tab-bar__tab--active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 20%;
+      right: 20%;
+      height: 3px;
+      background: var(--accent-blue);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .tab-bar__tab:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: -2px;
+    }
+
+    /* === Views === */
+    .view {
+      display: none;
+    }
+
+    .view--active {
+      display: block;
+    }
+
+    /* === Calculator === */
+    .calc__display {
+      padding: 20px 16px 12px;
+      text-align: right;
+      position: relative;
+      background: var(--bg-display);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .calc__expression {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      min-height: 1.2em;
+      margin-bottom: 4px;
+    }
+
+    .calc__result {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+      font-weight: 300;
+      color: var(--text-display);
+      word-break: break-all;
+      min-height: 1.2em;
+    }
+
+    .calc__copy-btn {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      background: var(--button-bg);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .calc__copy-btn.hidden {
+      display: none;
+    }
+
+    /* === Button Grid === */
+    .calc__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .calc__btn {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 12px;
+      font-size: clamp(1.1rem, 4vw, 1.3rem);
+      font-weight: 400;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: var(--button-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      min-width: 48px;
+    }
+
+    .calc__btn:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+
+    .calc__btn--control {
+      background: var(--button-bg);
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    .calc__btn--ac {
+      background: var(--accent-orange);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .calc__btn--operator {
+      background: var(--operator-bg);
+      color: var(--operator-text);
+      font-weight: 500;
+    }
+
+    .calc__btn--equals {
+      background: var(--accent-orange);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .calc__btn--zero {
+      /* stays in normal grid cell */
+    }
+
+    .calc__btn--backspace {
+      font-size: 1rem;
+    }
+
+    /* Hover & Active states */
+    @media (prefers-reduced-motion: no-preference) {
+      .calc__btn {
+        transition: background-color 0.15s ease, transform 0.1s ease;
+      }
+    }
+
+    .calc__btn:hover {
+      background: var(--button-hover);
+    }
+
+    .calc__btn--operator:hover {
+      opacity: 0.85;
+    }
+
+    .calc__btn--ac:hover,
+    .calc__btn--equals:hover {
+      opacity: 0.85;
+    }
+
+    .calc__btn:active {
+      transform: scale(0.95);
+    }
+
+    /* === Converter === */
+    .conv {
+      padding: 16px;
+    }
+
+    .conv__category {
+      margin-bottom: 16px;
+    }
+
+    .conv__label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .conv__select,
+    .conv__input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-display);
+      color: var(--text-primary);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .conv__select:focus,
+    .conv__input:focus {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: -1px;
+    }
+
+    .conv__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .conv__field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .conv__result {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--accent-blue);
+      background: var(--bg-display);
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* === History Panel === */
+    .history {
+      flex: 1;
+      border-top: 1px solid var(--border-color);
+      background: var(--history-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 120px;
+      max-height: 200px;
+    }
+
+    .history__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+    }
+
+    .history__title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .history__clear {
+      background: none;
+      border: none;
+      color: var(--accent-orange);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .history__clear:hover {
+      background: var(--button-bg);
+    }
+
+    .history__clear:focus-visible {
+      outline: 2px solid var(--accent-blue);
+    }
+
+    .history__list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+      padding: 0 16px 12px;
+    }
+
+    .history__item {
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      background: var(--bg-primary);
+    }
+
+    .history__item:hover {
+      background: var(--button-bg);
+    }
+
+    .history__item:focus-visible {
+      outline: 2px solid var(--accent-blue);
+    }
+
+    .history__empty {
+      padding: 12px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+
+    /* === Responsive === */
+    @media (min-width: 480px) {
+      body {
+        padding: 20px;
+        align-items: center;
+      }
+
+      .app {
+        min-height: auto;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        max-width: 400px;
+      }
+
+      .calc__grid {
+        gap: 10px;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Calculator Application">
+
+    <!-- Header: Theme Toggle -->
+    <header class="app__header">
+      <h1 class="app__title">Calculator</h1>
+      <button class="app__theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+      </button>
+    </header>
+
+    <!-- Tab Bar -->
+    <nav class="tab-bar" role="tablist" aria-label="App sections">
+      <button class="tab-bar__tab tab-bar__tab--active" id="tabCalc" role="tab" aria-selected="true" aria-controls="viewCalc">Calculator</button>
+      <button class="tab-bar__tab" id="tabConv" role="tab" aria-selected="false" aria-controls="viewConv">Converter</button>
+    </nav>
+
+    <!-- Calculator View -->
+    <main class="view view--active" id="viewCalc" role="tabpanel" aria-labelledby="tabCalc">
+      <div class="calc">
+        <!-- Display -->
+        <div class="calc__display">
+          <div class="calc__expression" id="expression" aria-label="Expression"></div>
+          <div class="calc__result" id="result" aria-live="polite" aria-atomic="true">0</div>
+          <button class="calc__copy-btn hidden" id="copyBtn" aria-label="Copy result to clipboard">📋</button>
+        </div>
+
+        <!-- Button Grid -->
+        <div class="calc__grid" role="group" aria-label="Calculator buttons">
+          <button class="calc__btn calc__btn--control calc__btn--ac" data-action="clear" aria-label="Clear all">AC</button>
+          <button class="calc__btn calc__btn--control" data-action="toggleSign" aria-label="Toggle sign">+/−</button>
+          <button class="calc__btn calc__btn--control" data-action="percent" aria-label="Percent">%</button>
+          <button class="calc__btn calc__btn--operator" data-action="operator" data-value="/" aria-label="Divide">÷</button>
+
+          <button class="calc__btn" data-action="digit" data-value="7" aria-label="7">7</button>
+          <button class="calc__btn" data-action="digit" data-value="8" aria-label="8">8</button>
+          <button class="calc__btn" data-action="digit" data-value="9" aria-label="9">9</button>
+          <button class="calc__btn calc__btn--operator" data-action="operator" data-value="*" aria-label="Multiply">×</button>
+
+          <button class="calc__btn" data-action="digit" data-value="4" aria-label="4">4</button>
+          <button class="calc__btn" data-action="digit" data-value="5" aria-label="5">5</button>
+          <button class="calc__btn" data-action="digit" data-value="6" aria-label="6">6</button>
+          <button class="calc__btn calc__btn--operator" data-action="operator" data-value="-" aria-label="Subtract">−</button>
+
+          <button class="calc__btn" data-action="digit" data-value="1" aria-label="1">1</button>
+          <button class="calc__btn" data-action="digit" data-value="2" aria-label="2">2</button>
+          <button class="calc__btn" data-action="digit" data-value="3" aria-label="3">3</button>
+          <button class="calc__btn calc__btn--operator" data-action="operator" data-value="+" aria-label="Add">+</button>
+
+          <button class="calc__btn calc__btn--zero" data-action="digit" data-value="0" aria-label="0">0</button>
+          <button class="calc__btn" data-action="decimal" aria-label="Decimal point">.</button>
+          <button class="calc__btn calc__btn--backspace" data-action="backspace" aria-label="Backspace">⌫</button>
+          <button class="calc__btn calc__btn--equals" data-action="evaluate" aria-label="Equals">=</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Converter View -->
+    <section class="view" id="viewConv" role="tabpanel" aria-labelledby="tabConv" hidden>
+      <div class="conv">
+        <div class="conv__category">
+          <label for="convCategory" class="conv__label">Category</label>
+          <select id="convCategory" class="conv__select" aria-label="Conversion category"></select>
+        </div>
+        <div class="conv__row">
+          <div class="conv__field">
+            <label for="convInput" class="conv__label">Value</label>
+            <input type="number" id="convInput" class="conv__input" placeholder="Enter value" aria-label="Value to convert" step="any">
+          </div>
+          <div class="conv__field">
+            <label for="convFrom" class="conv__label">From</label>
+            <select id="convFrom" class="conv__select" aria-label="Source unit"></select>
+          </div>
+        </div>
+        <div class="conv__row">
+          <div class="conv__field">
+            <label class="conv__label">Result</label>
+            <div class="conv__result" id="convResult" aria-live="polite" aria-atomic="true">—</div>
+          </div>
+          <div class="conv__field">
+            <label for="convTo" class="conv__label">To</label>
+            <select id="convTo" class="conv__select" aria-label="Target unit"></select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- History Panel -->
+    <aside class="history" aria-label="Calculation history">
+      <div class="history__header">
+        <h2 class="history__title">History</h2>
+        <button class="history__clear" id="clearHistory" aria-label="Clear history">Clear</button>
+      </div>
+      <ul class="history__list" id="historyList" role="list"></ul>
+    </aside>
+
+  </div>
+
+  <script src="sketch.js"></script>
+</body>
+</html>
