@@ -43,3 +43,15 @@ _Configurations_: Setting objects for canvas dimensions, colors, and physics par
 
 _Rules Logic_: All rules logic that help build a number to be calculated basis a predeinfed series
 
+## Release Notes
+### Summary
+This PR focuses on visual polish for the Tank Duel sketch while preserving the current gameplay loop. The goal is to improve readability and presentation without changing the underlying controls or rules.
+
+### What changed
+- Added layered sky shading and drifting clouds to improve atmosphere and overall scene depth.
+- Slowed projectile speed to a more deliberate, classic arcade pace.
+- Strengthened turn-state highlighting, launch feedback, and impact pulses to make each shot easier to follow.
+- Refined terrain and tank rendering to move the presentation away from harsh pixel-block styling and toward a cleaner modern arcade aesthetic.
+
+This is a presentation and UX pass rather than a gameplay redesign.
+
