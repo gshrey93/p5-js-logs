@@ -38,3 +38,6 @@ http://127.0.0.1:8000/sketch-03/index.html
 - Terrain is generated dynamically for each round.
 - Wind and gravity vary between turns.
 - A restart overlay appears at the end of a match for quick replay.
+
+## To Add
+- Moving the tank vehicle
