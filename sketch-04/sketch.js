@@ -1,7 +1,12 @@
+import { getFibonacci, getNearestPalindromeConstructive } from './js/calculator-logic.js';
+
 let inputField;
 let submitButton;
+let copyButton;
 let resultsDiv;
 let errorDiv;
+
+let lastResultText = ''; // To store the plain text for copying
 
 function setup() {
   // The canvas is now a background element
@@ -27,6 +32,10 @@ function setup() {
   // Create divs for error messages and results
   errorDiv = createDiv('').id('error-message').parent(uiContainer);
   resultsDiv = createDiv('Enter a number and press Calculate.').id('results').parent(uiContainer);
+
+  // Create the copy button, initially hidden
+  copyButton = createButton('Copy Results').parent(uiContainer);
+  copyButton.addClass('copy-btn').mousePressed(copyResultsToClipboard).hide();
   
   // Handle 'Enter' key press in the input field
   inputField.elt.addEventListener('keyup', (event) => {
@@ -60,6 +69,7 @@ async function calculateAndDisplay() {
   if (isNaN(n) || n < 0) {
     errorDiv.html("Please enter a valid positive integer.");
     resultsDiv.html('');
+    copyButton.hide();
     return;
   }
   
@@ -73,78 +83,30 @@ async function calculateAndDisplay() {
     const fibVal = getFibonacci(n);
     const nearestPal = getNearestPalindromeConstructive(fibVal);
     const diff = (fibVal > nearestPal) ? fibVal - nearestPal : nearestPal - fibVal;
-
+    
+    // Store plain text for copying
+    lastResultText = `N: ${n}\n` +
+                     `Fibonacci Value: ${fibVal.toLocaleString()}\n` +
+                     `Nearest Palindrome: ${nearestPal.toLocaleString()}\n` +
+                     `Difference: ${diff.toLocaleString()}`;
+    
+    // Display results as HTML
     resultsDiv.html(
       `<p><strong>N:</strong> ${n}</p>` +
       `<p><strong>Fibonacci Value:</strong> ${fibVal.toLocaleString()}</p>` +
       `<p><strong>Nearest Palindrome:</strong> ${nearestPal.toLocaleString()}</p>` +
       `<p><strong>Difference:</strong> ${diff.toLocaleString()}</p>`
     );
-    
+
+    // Re-enable calculate button and show the copy button
     submitButton.removeAttribute('disabled');
+    copyButton.html('Copy Results').show();
   }, 10); // A small delay is enough
 }
 
-function isPalindrome(n) {
-  let s = n.toString();
-  return s === s.split('').reverse().join('');
-}
-
-function getFibonacci(n) {
-  if (n <= 0) return 0n;
-  if (n === 1) return 1n;
-  
-  let a = 0n;
-  let b = 1n;
-  
-  for (let i = 2; i <= n; i++) {
-    let temp = a + b;
-    a = b;
-    b = temp;
-  }
-  return b;
-}
-
-/**
- * Finds the nearest palindrome to a number using a constructive method,
- * which is much more performant for large numbers than a linear search.
- * @param {BigInt} num The number to start from.
- * @returns {BigInt} The nearest palindrome.
- */
-function getNearestPalindromeConstructive(num) {
-    if (isPalindrome(num)) return num;
-
-    const s = num.toString();
-    const len = s.length;
-    const halfLen = Math.floor(len / 2);
-    const firstHalf = s.substring(0, halfLen);
-    const middle = s.substring(halfLen, len - halfLen);
-
-    // Candidate 1: Mirror the first half
-    const p1Root = BigInt(firstHalf + middle);
-    const p1 = BigInt(p1Root.toString() + firstHalf.split('').reverse().join(''));
-
-    // Candidate 2: Increment the root and mirror
-    const p2Root = p1Root + 1n;
-    const p2Str = p2Root.toString();
-    const p2 = BigInt(p2Str + p2Str.substring(0, p2Str.length - middle.length).split('').reverse().join(''));
-
-    // Candidate 3: Decrement the root and mirror
-    const p3Root = p1Root - 1n;
-    const p3Str = p3Root.toString();
-    const p3 = BigInt(p3Str + p3Str.substring(0, p3Str.length - middle.length).split('').reverse().join(''));
-
-    const candidates = [p1, p2, p3];
-    let nearest = candidates[0];
-    let minDiff = (num > nearest) ? num - nearest : nearest - num;
-
-    for (let i = 1; i < candidates.length; i++) {
-        const candidate = candidates[i];
-        const diff = (num > candidate) ? num - candidate : candidate - num;
-        if (diff < minDiff) {
-            minDiff = diff;
-            nearest = candidate;
-        }
-    }
-    return nearest;
+function copyResultsToClipboard() {
+  navigator.clipboard.writeText(lastResultText).then(() => {
+    copyButton.html('Copied!');
+    setTimeout(() => copyButton.html('Copy Results'), 2000); // Reset after 2 seconds
+  });
 }

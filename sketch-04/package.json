@@ -1,0 +1,25 @@
+{
+  "name": "sketch-04",
+  "version": "1.0.0",
+  "description": "Fibonacci Palindrome Finder",
+  "main": "sketch.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-junit": "^16.0.0"
+  },
+  "jest": {
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "test-reports"
+        }
+      ]
+    ]
+  }
+}

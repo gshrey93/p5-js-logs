@@ -45,6 +45,16 @@
       button:disabled { background-color: #5a9cde; cursor: not-allowed; }
       #error-message { color: #d93025; font-size: 0.9rem; height: 1.2rem; margin-top: 5px; }
       #results { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; line-height: 1.6; }
+
+      .copy-btn {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        margin-top: 10px;
+      }
+      .copy-btn:hover { background-color: #5a6268; }
+
       #results p { margin: 0.5rem 0; }
       #results strong { color: #333; }
 
@@ -64,6 +74,6 @@
   <body>
     <main id="ui-container"></main>
     <a href="../" class="back-btn">← Back to Gallery</a>
-    <script src="sketch.js"></script>
+    <script type="module" src="sketch.js"></script>
   </body>
 </html>
