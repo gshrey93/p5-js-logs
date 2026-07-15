@@ -21,9 +21,27 @@ let gameOverlay;
 let gameStatusText;
 let restartButton;
 
+// Sound Effects
+let fireSound, explosionSound;
+
+// Helper to draw a simple polyline, as p5 doesn't have one built-in
+function polyline(...points) {
+  beginShape();
+  for (let i = 0; i < arguments.length; i += 2) vertex(arguments[i], arguments[i+1]);
+  endShape();
+}
+
 // Environment Modifiers
 let wind = 0; 
 let gravityForce = 0.2; // Baseline is 0.2
+
+function preload() {
+  // Ensure you have these files in an 'assets' folder
+  // inside the sketch-03 directory.
+  soundFormats('wav', 'mp3');
+  fireSound = loadSound('assets/fire.wav');
+  explosionSound = loadSound('assets/explosion.wav');
+}
 
 function setup() {
   const canvas = createCanvas(800, 600);
@@ -137,6 +155,7 @@ function draw() {
 
   drawImpactEffects();
   drawUI();
+  drawWindIndicator();
 }
 
 // --- INPUT & FIRING ---
@@ -168,6 +187,8 @@ function keyPressed() {
 }
 
 function fire(tank) {
+  if (fireSound.isLoaded()) fireSound.play();
+
   tank.shotsLeft--;
   let angleInRadians = radians(tank.angle);
   let launchSpeed = tank.power * CONFIG.PROJECTILE_SPEED_SCALE; 
@@ -259,6 +280,8 @@ function isHittingTank(px, py, tank) {
 
 // --- EXPLOSIONS & DAMAGE ---
 function explode(pixelX, pixelY) {
+  if (explosionSound.isLoaded()) explosionSound.play();
+
   let isBig = currentProjectile.isBigPowerup;
   let blastRadiusPixels = isBig ? 60 : 40;
   let blastRadiusGrid = floor(blastRadiusPixels / CONFIG.CELL_SIZE);
@@ -675,15 +698,11 @@ function drawUI() {
     // Wind & Gravity Output
     fill(50); textSize(16);
     let windStrength = abs(round(wind * 500));
-    let windText = "";
-    if (wind < -0.005) windText = `← ${windStrength}`;
-    else if (wind > 0.005) windText = `${windStrength} →`;
-    else windText = "0 (Calm)";
 
     // Calculate Gravity relative to base (0.2 = 1.0G)
     let gText = (gravityForce / 0.2).toFixed(1) + "G";
 
-    text(`Wind: ${windText}   |   Gravity: ${gText}`, width / 2, 55);
+    text(`Gravity: ${gText}`, width / 2, 55);
   }
 
   // --- PERSISTENT INPUT GUIDE ---
@@ -692,4 +711,36 @@ function drawUI() {
   text(getActiveControlHint(), width / 2, height - 20);
 
   textAlign(LEFT);
+}
+
+function drawWindIndicator() {
+  if (gameState === "GAME_OVER") return;
+
+  const indicatorX = width / 2;
+  const indicatorY = 85;
+  const maxWind = 0.02;
+  const strength = abs(wind);
+
+  push();
+  translate(indicatorX, indicatorY);
+
+  if (strength < 0.005) {
+    fill(50, 150);
+    noStroke();
+    textAlign(CENTER, CENTER);
+    textSize(12);
+    text("Calm", 0, 0);
+  } else {
+    const numChevrons = floor(map(strength, 0.005, maxWind, 1, 4));
+    const direction = sign(wind);
+
+    for (let i = 0; i < numChevrons; i++) {
+      const opacity = map(i, 0, numChevrons - 1, 60, 200);
+      stroke(255, 255, 255, opacity);
+      strokeWeight(2.5);
+      noFill();
+      polyline(direction * (5 + i * 10), -5, direction * (10 + i * 10), 0, direction * (5 + i * 10), 5);
+    }
+  }
+  pop();
 }
