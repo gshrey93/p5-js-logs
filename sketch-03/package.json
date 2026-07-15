@@ -1,0 +1,16 @@
+{
+  "name": "sketch-03-artillery-duel",
+  "version": "1.0.0",
+  "description": "A turn-based artillery game built with p5.js.",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}
