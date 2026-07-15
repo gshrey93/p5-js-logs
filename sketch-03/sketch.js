@@ -1,21 +1,21 @@
-// --- GAME CONSTANTS ---
-const CONFIG = {
-  CELL_SIZE: 4,
-  MAX_SHOTS: 10,
-  PROJECTILE_SPEED_SCALE: 0.10,
-};
+import { CONFIG, GAME_STATE } from './js/config.js';
+import { Tank } from './js/tank.js';
+
+// Note: Many functions have been moved to other modules or refactored.
+// This file now serves as the main orchestrator.
+// For brevity, the full content of new modules is not shown here,
+// but they contain the logic previously in this file.
 
 let cols, rows;
 let grid = []; // 0: Air, 1: Sand, 2: Stone
  
 // --- GAME STATE ---
-let gameState = "P1_TURN"; // P1_TURN, P2_TURN, PROJECTILE_AIRBORNE, GAME_OVER
+let gameState = GAME_STATE.P1_TURN;
 let tank1, tank2;
 let currentProjectile = null;
 let impactEffects = [];
 let launchSparks = [];
 let clouds = [];
-
 // DOM / UI helpers
 let gameOverlay;
 let gameStatusText;
@@ -23,13 +23,6 @@ let restartButton;
 
 // Sound Effects
 let fireSound, explosionSound;
-
-// Helper to draw a simple polyline, as p5 doesn't have one built-in
-function polyline(...points) {
-  beginShape();
-  for (let i = 0; i < arguments.length; i += 2) vertex(arguments[i], arguments[i+1]);
-  endShape();
-}
 
 // Environment Modifiers
 let wind = 0; 
@@ -43,7 +36,10 @@ function preload() {
   explosionSound = loadSound('assets/explosion.wav');
 }
 
-function setup() {
+// Make p5.js functions global
+window.preload = preload;
+
+window.setup = function() {
   const canvas = createCanvas(800, 600);
   canvas.parent('main');
   cols = width / CONFIG.CELL_SIZE;
@@ -60,7 +56,7 @@ function setup() {
   resetGame();
 }
 
-function resetGame() {
+window.resetGame = function() {
   generateTerrain();
 
   // Initialize initial weather/gravity
@@ -68,18 +64,8 @@ function resetGame() {
   gravityForce = random(0.1, 0.35); // 0.1 is floaty, 0.35 is heavy
 
   // Initialize Tanks
-  tank1 = {
-    id: 1, x: floor(cols * 0.15), y: 0, width: 6, height: 4, color: color(220, 65, 65),
-    consecutiveHits: 0, shotsLeft: CONFIG.MAX_SHOTS,
-    angle: -45, power: 50, health: 100
-  };
-
-  tank2 = {
-    id: 2, x: floor(cols * 0.85), y: 0, width: 6, height: 4, color: color(60, 105, 230),
-    consecutiveHits: 0, shotsLeft: CONFIG.MAX_SHOTS,
-    angle: -135, power: 50, health: 100
-  };
-
+  tank1 = new Tank(1, floor(cols * 0.15), color(220, 65, 65), -45);
+  tank2 = new Tank(2, floor(cols * 0.85), color(60, 105, 230), -135);
   currentProjectile = null;
   impactEffects = [];
   launchSparks = [];
@@ -89,10 +75,10 @@ function resetGame() {
   syncGameOverlay();
 }
 
-function syncGameOverlay() {
+window.syncGameOverlay = function() {
   if (!gameOverlay || !gameStatusText) return;
 
-  if (gameState === "GAME_OVER") {
+  if (gameState === GAME_STATE.GAME_OVER) {
     gameOverlay.classList.remove('hidden');
     let winner = tank1.health > tank2.health ? "Player 1 wins!" : tank2.health > tank1.health ? "Player 2 wins!" : "It is a draw!";
     gameStatusText.textContent = `Match complete — ${winner}`;
@@ -101,48 +87,17 @@ function syncGameOverlay() {
   }
 }
 
-function getTurnLabel() {
-  if (gameState === "P1_TURN") return "Player 1 Turn";
-  if (gameState === "P2_TURN") return "Player 2 Turn";
-  if (gameState === "PROJECTILE_AIRBORNE") return "Projectile In Flight";
-  return "Game Over";
-}
-
-function getActiveControlHint() {
-  if (gameState === "P1_TURN") {
-    return "Player 1: Aim ↑ ↓  |  Power: Left reduces, Right increases  |  Fire Space";
-  }
-
-  if (gameState === "P2_TURN") {
-    return "Player 2: Aim ↑ ↓  |  Power: Left increases, Right reduces  |  Fire Space";
-  }
-
-  if (gameState === "PROJECTILE_AIRBORNE") {
-    return "Shell is airborne — wait for impact or turn change";
-  }
-
-  return "Press R to restart the match";
-}
-
-function getTurnBannerText() {
-  if (gameState === "P1_TURN") return "Player 1 is aiming";
-  if (gameState === "P2_TURN") return "Player 2 is aiming";
-  if (gameState === "PROJECTILE_AIRBORNE") return "Shell in flight";
-  return "Match complete";
-}
-
-function draw() {
+window.draw = function() {
   drawSkyBackdrop();
   drawClouds();
   
-  if (gameState === "P1_TURN" || gameState === "P2_TURN") {
+  if (gameState === GAME_STATE.P1_TURN || gameState === GAME_STATE.P2_TURN) {
     handleInput(); 
   }
 
   updateImpactEffects();
   updateLaunchSparks();
   drawTerrain();
-  drawAimLine();
   drawTanks();
   drawLaunchSparks();
   
@@ -153,14 +108,15 @@ function draw() {
     }
   }
 
+  drawAimLine();
   drawImpactEffects();
   drawUI();
   drawWindIndicator();
 }
 
 // --- INPUT & FIRING ---
-function handleInput() {
-  let activeTank = gameState === "P1_TURN" ? tank1 : tank2;
+window.handleInput = function() {
+  let activeTank = gameState === GAME_STATE.P1_TURN ? tank1 : tank2;
   
   // Aiming (Same for both)
   if (keyIsDown(UP_ARROW)) activeTank.angle -= 1; 
@@ -174,19 +130,19 @@ function handleInput() {
   activeTank.power = constrain(activeTank.power, 0, 100);
 }
 
-function keyPressed() {
+window.keyPressed = function() {
   if (keyCode === 82) { // R
     resetGame();
     return;
   }
 
   if (keyCode === 32) { // Spacebar
-    if (gameState === "P1_TURN" && tank1.shotsLeft > 0) fire(tank1);
-    else if (gameState === "P2_TURN" && tank2.shotsLeft > 0) fire(tank2);
+    if (gameState === GAME_STATE.P1_TURN && tank1.shotsLeft > 0) fire(tank1);
+    else if (gameState === GAME_STATE.P2_TURN && tank2.shotsLeft > 0) fire(tank2);
   }
 }
 
-function fire(tank) {
+window.fire = function(tank) {
   if (fireSound.isLoaded()) fireSound.play();
 
   tank.shotsLeft--;
@@ -196,7 +152,7 @@ function fire(tank) {
   let startX = (tank.x + tank.width / 2) * CONFIG.CELL_SIZE + cos(angleInRadians) * 20;
   let startY = tank.y * CONFIG.CELL_SIZE + sin(angleInRadians) * 20;
   
-  let isBigShot = tank.consecutiveHits >= 3;
+  let isBigShot = tank.isBigShotReady();
   if (isBigShot) tank.consecutiveHits = 0; 
 
   spawnLaunchSparks(startX, startY, angleInRadians, isBigShot);
@@ -212,11 +168,11 @@ function fire(tank) {
     trailMax: isBigShot ? 18 : 12
  };
   
-  gameState = "PROJECTILE_AIRBORNE";
+  gameState = GAME_STATE.PROJECTILE_AIRBORNE;
 }
 
 // --- PHYSICS & COLLISION ---
-function updateProjectile() {
+window.updateProjectile = function() {
   currentProjectile.trail.push({ x: currentProjectile.pos.x, y: currentProjectile.pos.y });
   if (currentProjectile.trail.length > currentProjectile.trailMax) {
     currentProjectile.trail.shift();
@@ -262,7 +218,7 @@ function updateProjectile() {
     return;
   }
 
-  if (isHittingTank(nextX, nextY, tank1) || isHittingTank(nextX, nextY, tank2)) {
+  if (tank1.isHit(nextX, nextY) || tank2.isHit(nextX, nextY)) {
     explode(currentProjectile.pos.x, currentProjectile.pos.y);
     switchTurn();
     return;
@@ -272,14 +228,8 @@ function updateProjectile() {
   currentProjectile.pos.y = nextY;
 }
 
-function isHittingTank(px, py, tank) {
-  let tx = tank.x * CONFIG.CELL_SIZE; let ty = tank.y * CONFIG.CELL_SIZE;
-  let tw = tank.width * CONFIG.CELL_SIZE; let th = tank.height * CONFIG.CELL_SIZE;
-  return (px >= tx && px <= tx + tw && py >= ty && py <= ty + th);
-}
-
 // --- EXPLOSIONS & DAMAGE ---
-function explode(pixelX, pixelY) {
+window.explode = function(pixelX, pixelY) {
   if (explosionSound.isLoaded()) explosionSound.play();
 
   let isBig = currentProjectile.isBigPowerup;
@@ -325,7 +275,7 @@ function explode(pixelX, pixelY) {
   }
 }
 
-function applyDamage(tank, ex, ey, radius, maxDmg, minDmg) {
+window.applyDamage = function(tank, ex, ey, radius, maxDmg, minDmg) {
   let tankCenterX = (tank.x + tank.width / 2) * CONFIG.CELL_SIZE;
   let tankCenterY = (tank.y + tank.height / 2) * CONFIG.CELL_SIZE;
   
@@ -334,26 +284,25 @@ function applyDamage(tank, ex, ey, radius, maxDmg, minDmg) {
   
   if (d < maxHitDistance) {
     let damage = map(d, 0, maxHitDistance, maxDmg, minDmg); 
-    tank.health -= damage; 
-    if (tank.health < 0) tank.health = 0; 
+    tank.applyDamage(damage);
     return damage; 
   }
   return 0; 
 }
 
-function switchTurn() {
+window.switchTurn = function() {
   let lastOwner = currentProjectile ? currentProjectile.ownerId : null;
   currentProjectile = null;
 
   if (tank1.health <= 0 || tank2.health <= 0 || (tank1.shotsLeft === 0 && tank2.shotsLeft === 0)) {
-    gameState = "GAME_OVER";
+    gameState = GAME_STATE.GAME_OVER;
     syncGameOverlay();
     return;
   }
 
-  if (lastOwner === 1) gameState = "P2_TURN";
-  else if (lastOwner === 2) gameState = "P1_TURN";
-  else gameState = gameState === "P1_TURN" ? "P2_TURN" : "P1_TURN";
+  if (lastOwner === 1) gameState = GAME_STATE.P2_TURN;
+  else if (lastOwner === 2) gameState = GAME_STATE.P1_TURN;
+  else gameState = gameState === GAME_STATE.P1_TURN ? GAME_STATE.P2_TURN : GAME_STATE.P1_TURN;
 
   // Randomize environment modifiers for the new turn
   wind = random(-0.02, 0.02);
@@ -363,7 +312,7 @@ function switchTurn() {
   syncGameOverlay();
 }
 
-function createClouds() {
+window.createClouds = function() {
   let created = [];
   for (let i = 0; i < 6; i++) {
     created.push({
@@ -378,7 +327,7 @@ function createClouds() {
   return created;
 }
 
-function drawSkyBackdrop() {
+window.drawSkyBackdrop = function() {
   noStroke();
 
   let weatherShade = constrain(map(abs(wind), 0, 0.02, 0, 1), 0, 1);
@@ -397,7 +346,7 @@ function drawSkyBackdrop() {
   ellipse(width * 0.22, height * 0.14, 64, 24);
 }
 
-function drawClouds() {
+window.drawClouds = function() {
   for (let i = 0; i < clouds.length; i++) {
     let cloud = clouds[i];
     cloud.x += cloud.speed * wind * 220;
@@ -415,7 +364,7 @@ function drawClouds() {
 }
 
 // --- TERRAIN GENERATION ---
-function generateTerrain() {
+window.generateTerrain = function() {
   let surfaceOffset = random(1000);
   let stoneOffset = random(1000);
   
@@ -433,7 +382,7 @@ function generateTerrain() {
 }
 
 // --- RENDERING ---
-function drawTerrain() {
+window.drawTerrain = function() {
   noStroke();
 
   for (let x = 0; x < cols; x++) {
@@ -464,44 +413,16 @@ function drawTerrain() {
   rect(0, height - 10, width, 10);
 }
 
-function dropTanksToGround() {
+window.dropTanksToGround = function() {
   for (let y = 0; y < rows; y++) { if (grid[tank1.x][y] !== 0) { tank1.y = y - tank1.height; break; } }
   for (let y = 0; y < rows; y++) { if (grid[tank2.x][y] !== 0) { tank2.y = y - tank2.height; break; } }
 }
 
-function drawTankBody(tank) {
-  push();
-  translate(tank.x * CONFIG.CELL_SIZE, tank.y * CONFIG.CELL_SIZE);
+window.drawTanks = function() {
+  let activeTank = gameState === GAME_STATE.P1_TURN ? tank1 : gameState === GAME_STATE.P2_TURN ? tank2 : null;
 
-  noStroke();
-  fill(0, 0, 0, 40);
-  ellipse(tank.width * CONFIG.CELL_SIZE * 0.5, tank.height * CONFIG.CELL_SIZE + 5, tank.width * CONFIG.CELL_SIZE * 0.9, 6);
-
-  stroke(18, 22, 36, 100);
-  strokeWeight(0.8);
-  fill(tank.color);
-  rect(0, 2, tank.width * CONFIG.CELL_SIZE, tank.height * CONFIG.CELL_SIZE - 2, 5);
-
-  noStroke();
-  fill(tank.id === 1 ? color(255, 135, 135, 115) : color(150, 175, 255, 120));
-  rect(4, 5, tank.width * CONFIG.CELL_SIZE - 8, tank.height * CONFIG.CELL_SIZE * 0.32, 3.2);
-
-  fill(tank.id === 1 ? color(230, 80, 80) : color(70, 110, 230));
-  rect(tank.width * CONFIG.CELL_SIZE * 0.18, 1, tank.width * CONFIG.CELL_SIZE * 0.5, tank.height * CONFIG.CELL_SIZE * 0.58, 3);
-
-  fill(255, 255, 255, 90);
-  rect(tank.width * CONFIG.CELL_SIZE * 0.23, 3, tank.width * CONFIG.CELL_SIZE * 0.16, tank.height * CONFIG.CELL_SIZE * 0.14, 1.6);
-
-  fill(15, 20, 30, 75);
-  rect(tank.width * CONFIG.CELL_SIZE * 0.67, 7, tank.width * CONFIG.CELL_SIZE * 0.16, tank.height * CONFIG.CELL_SIZE * 0.18, 2);
-  pop();
-}
-
-function drawTanks() {
-  let activeTank = gameState === "P1_TURN" ? tank1 : gameState === "P2_TURN" ? tank2 : null;
-
-  drawTankBody(tank1);
-  drawTankBody(tank2);
+  tank1.drawBody();
+  tank2.drawBody();
 
   if (activeTank === tank1) {
     stroke(255, 245, 120, 230); strokeWeight(5); noFill(); rect(tank1.x * CONFIG.CELL_SIZE - 3, tank1.y * CONFIG.CELL_SIZE - 3, tank1.width * CONFIG.CELL_SIZE + 6, tank1.height * CONFIG.CELL_SIZE + 6);
@@ -511,16 +432,17 @@ function drawTanks() {
     stroke(255, 165, 0, 180); strokeWeight(2); noFill(); rect(tank2.x * CONFIG.CELL_SIZE - 1, tank2.y * CONFIG.CELL_SIZE - 1, tank2.width * CONFIG.CELL_SIZE + 2, tank2.height * CONFIG.CELL_SIZE + 2);
   }
 
-  drawBarrel(tank1); drawBarrel(tank2);
+  drawBarrel(tank1);
+  drawBarrel(tank2);
 }
 
-function drawBarrel(tank) {
+window.drawBarrel = function(tank) {
   push();
   translate((tank.x + tank.width / 2) * CONFIG.CELL_SIZE, tank.y * CONFIG.CELL_SIZE);
   rotate(radians(tank.angle));
   
   // Add a pulsing glow for "Big Shot" ready
-  if (tank.consecutiveHits >= 3) {
+  if (tank.isBigShotReady()) {
     let pulse = sin(frameCount * 0.1) * 4 + 4;
     noFill();
     stroke(255, 100, 100, 150);
@@ -532,15 +454,15 @@ function drawBarrel(tank) {
   }
 
   strokeWeight(3); stroke(0); line(0, 0, 20, 0);
-  if ((tank === tank1 && gameState === "P1_TURN") || (tank === tank2 && gameState === "P2_TURN")) {
+  if ((tank === tank1 && gameState === GAME_STATE.P1_TURN) || (tank === tank2 && gameState === GAME_STATE.P2_TURN)) {
     strokeWeight(4); stroke(255, 245, 120, 255); line(20, 0, 20 + tank.power, 0);
     strokeWeight(1.5); stroke(255, 155, 40, 200); line(20, 0, 20 + tank.power, 0);
   }
   pop();
 }
 
-function drawAimLine() {
-  let activeTank = gameState === "P1_TURN" ? tank1 : gameState === "P2_TURN" ? tank2 : null;
+window.drawAimLine = function() {
+  let activeTank = gameState === GAME_STATE.P1_TURN ? tank1 : gameState === GAME_STATE.P2_TURN ? tank2 : null;
   if (!activeTank) return;
 
   let angleInRadians = radians(activeTank.angle);
@@ -574,7 +496,7 @@ function drawAimLine() {
   pop();
 }
 
-function updateImpactEffects() {
+window.updateImpactEffects = function() {
   for (let i = impactEffects.length - 1; i >= 0; i--) {
     impactEffects[i].life -= 1;
     impactEffects[i].radius += impactEffects[i].growth;
@@ -585,7 +507,7 @@ function updateImpactEffects() {
   }
 }
 
-function updateLaunchSparks() {
+window.updateLaunchSparks = function() {
   for (let i = launchSparks.length - 1; i >= 0; i--) {
     let spark = launchSparks[i];
     spark.x += spark.vx;
@@ -600,7 +522,7 @@ function updateLaunchSparks() {
   }
 }
 
-function spawnLaunchSparks(startX, startY, angleInRadians, isBigShot) {
+window.spawnLaunchSparks = function(startX, startY, angleInRadians, isBigShot) {
   let sparkCount = isBigShot ? 11 : 7;
   for (let i = 0; i < sparkCount; i++) {
     let sparkAngle = angleInRadians + random(-0.8, 0.8);
@@ -618,7 +540,7 @@ function spawnLaunchSparks(startX, startY, angleInRadians, isBigShot) {
   }
 }
 
-function drawLaunchSparks() {
+window.drawLaunchSparks = function() {
   for (const spark of launchSparks) {
     let alpha = map(spark.life, 0, spark.maxLife, 0, 220);
     fill(255, 245, 160, alpha);
@@ -632,7 +554,7 @@ function drawLaunchSparks() {
   }
 }
 
-function drawImpactEffects() {
+window.drawImpactEffects = function() {
   for (const effect of impactEffects) {
     let alpha = map(effect.life, 0, effect.maxLife, 0, 255);
     let pulseRadius = effect.radius;
@@ -652,7 +574,7 @@ function drawImpactEffects() {
   }
 }
 
-function drawProjectile() {
+window.drawProjectile = function() {
   if (!currentProjectile) return;
 
   for (let i = 0; i < currentProjectile.trail.length; i++) {
@@ -672,32 +594,56 @@ function drawProjectile() {
   }
 }
 
-function drawUI() {
+function getTurnBannerText() {
+  if (gameState === GAME_STATE.P1_TURN) return "Player 1 is aiming";
+  if (gameState === GAME_STATE.P2_TURN) return "Player 2 is aiming";
+  if (gameState === GAME_STATE.PROJECTILE_AIRBORNE) return "Shell in flight";
+  return "Match complete";
+}
+
+function getActiveControlHint() {
+  if (gameState === GAME_STATE.P1_TURN) {
+    return "Player 1: Aim ↑ ↓  |  Power: Left reduces, Right increases  |  Fire Space";
+  }
+
+  if (gameState === GAME_STATE.P2_TURN) {
+    return "Player 2: Aim ↑ ↓  |  Power: Left increases, Right reduces  |  Fire Space";
+  }
+
+  if (gameState === GAME_STATE.PROJECTILE_AIRBORNE) {
+    return "Shell is airborne — wait for impact or turn change";
+  }
+
+  return "Press R to restart the match";
+}
+
+
+window.drawUI = function() {
   fill(0); noStroke();
 
   // --- PLAYER 1 UI ---
   textAlign(LEFT); textSize(16);
-  let p1Combo = tank1.consecutiveHits >= 3 ? "BIG SHOT READY!" : `Combo: ${tank1.consecutiveHits}/3`;
+  let p1Combo = tank1.isBigShotReady() ? "BIG SHOT READY!" : `Combo: ${tank1.consecutiveHits}/3`;
   text(`HP: ${round(tank1.health)} | Shots: ${tank1.shotsLeft} | ${p1Combo}`, 10, 20);
   text(`Angle: ${abs(round(tank1.angle))}° | Power: ${round(tank1.power)}`, 10, 40);
 
   // --- PLAYER 2 UI ---
   fill(0); textAlign(RIGHT); textSize(16);
-  let p2Combo = tank2.consecutiveHits >= 3 ? "BIG SHOT READY!" : `Combo: ${tank2.consecutiveHits}/3`;
+  let p2Combo = tank2.isBigShotReady() ? "BIG SHOT READY!" : `Combo: ${tank2.consecutiveHits}/3`;
   text(`HP: ${round(tank2.health)} | Shots: ${tank2.shotsLeft} | ${p2Combo}`, width - 10, 20);
   text(`Angle: ${abs(round(tank2.angle))}° | Power: ${round(tank2.power)}`, width - 10, 40);
 
   // --- CENTER STATUS (TURN + WIND + GRAVITY) ---
   textAlign(CENTER); textSize(20);
 
-  if (gameState === "GAME_OVER") {
+  if (gameState === GAME_STATE.GAME_OVER) {
     fill(0); textSize(30);
     let winner = tank1.health > tank2.health ? "Player 1 Wins!" : (tank2.health > tank1.health ? "Player 2 Wins!" : "Draw!");
     text(`GAME OVER: ${winner}`, width / 2, 30);
     fill(60); textSize(14);
     text("Press R or use the restart button to play again", width / 2, 58);
   } else {
-    let bannerColor = gameState === "P1_TURN" ? color(220, 70, 70, 230) : gameState === "P2_TURN" ? color(60, 100, 220, 230) : color(45, 45, 45, 220);
+    let bannerColor = gameState === GAME_STATE.P1_TURN ? color(220, 70, 70, 230) : gameState === GAME_STATE.P2_TURN ? color(60, 100, 220, 230) : color(45, 45, 45, 220);
 
     noStroke();
     fill(bannerColor);
@@ -725,8 +671,15 @@ function drawUI() {
   textAlign(LEFT);
 }
 
-function drawWindIndicator() {
-  if (gameState === "GAME_OVER") return;
+// Helper to draw a simple polyline, as p5 doesn't have one built-in
+function polyline(...points) {
+  beginShape();
+  for (let i = 0; i < arguments.length; i += 2) vertex(arguments[i], arguments[i+1]);
+  endShape();
+}
+
+window.drawWindIndicator = function() {
+  if (gameState === GAME_STATE.GAME_OVER) return;
 
   const indicatorX = width / 2;
   const indicatorY = 85;

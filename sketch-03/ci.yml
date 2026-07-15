@@ -24,3 +24,10 @@ jobs:
         cd sketch-03
         npm install
         npm test
+
+    - name: Upload Test Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: sketch-03-test-report
+        path: sketch-03/junit.xml
