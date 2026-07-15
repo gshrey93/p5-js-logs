@@ -1,5 +1,5 @@
-import { CONFIG, GAME_STATE } from './js/config.js';
-import { Tank } from './js/tank.js';
+import { CONFIG, GAME_STATE } from './config.js';
+import { Tank } from './tank.js';
 
 // Note: Many functions have been moved to other modules or refactored.
 // This file now serves as the main orchestrator.
