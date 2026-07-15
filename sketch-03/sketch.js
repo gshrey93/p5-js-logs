@@ -1,10 +1,13 @@
 // --- GAME CONSTANTS ---
-const CELL_SIZE = 4; 
-const MAX_SHOTS = 10;
-const PROJECTILE_SPEED_SCALE = 0.10;
+const CONFIG = {
+  CELL_SIZE: 4,
+  MAX_SHOTS: 10,
+  PROJECTILE_SPEED_SCALE: 0.10,
+};
+
 let cols, rows;
 let grid = []; // 0: Air, 1: Sand, 2: Stone
-
+ 
 // --- GAME STATE ---
 let gameState = "P1_TURN"; // P1_TURN, P2_TURN, PROJECTILE_AIRBORNE, GAME_OVER
 let tank1, tank2;
@@ -24,8 +27,8 @@ let gravityForce = 0.2; // Baseline is 0.2
 
 function setup() {
   createCanvas(800, 600);
-  cols = width / CELL_SIZE;
-  rows = height / CELL_SIZE;
+  cols = width / CONFIG.CELL_SIZE;
+  rows = height / CONFIG.CELL_SIZE;
 
   gameOverlay = document.getElementById('game-overlay');
   gameStatusText = document.getElementById('game-status');
@@ -47,14 +50,14 @@ function resetGame() {
 
   // Initialize Tanks
   tank1 = {
-    id: 1, x: floor(cols * 0.15), y: 0, width: 6, height: 4,
-    color: color(220, 65, 65), consecutiveHits: 0, shotsLeft: MAX_SHOTS,
+    id: 1, x: floor(cols * 0.15), y: 0, width: 6, height: 4, color: color(220, 65, 65),
+    consecutiveHits: 0, shotsLeft: CONFIG.MAX_SHOTS,
     angle: -45, power: 50, health: 100
   };
 
   tank2 = {
-    id: 2, x: floor(cols * 0.85), y: 0, width: 6, height: 4,
-    color: color(60, 105, 230), consecutiveHits: 0, shotsLeft: MAX_SHOTS,
+    id: 2, x: floor(cols * 0.85), y: 0, width: 6, height: 4, color: color(60, 105, 230),
+    consecutiveHits: 0, shotsLeft: CONFIG.MAX_SHOTS,
     angle: -135, power: 50, health: 100
   };
 
@@ -144,15 +147,10 @@ function handleInput() {
   if (keyIsDown(DOWN_ARROW)) activeTank.angle += 1;
   activeTank.angle = constrain(activeTank.angle, -180, 0);
 
-  // Power (Inverted for P2 for better ergonomics)
-  if (activeTank === tank1) {
-    if (keyIsDown(RIGHT_ARROW)) activeTank.power += 0.5;
-    if (keyIsDown(LEFT_ARROW)) activeTank.power -= 0.5;
-  } else if (activeTank === tank2) {
-    if (keyIsDown(LEFT_ARROW)) activeTank.power += 0.5;
-    if (keyIsDown(RIGHT_ARROW)) activeTank.power -= 0.5;
-  }
-  
+  // Power (Inverted for P2 for better ergonomics) - simplified
+  const powerDirection = (activeTank.id === 1) ? 1 : -1;
+  if (keyIsDown(RIGHT_ARROW)) activeTank.power += 0.5 * powerDirection;
+  if (keyIsDown(LEFT_ARROW)) activeTank.power -= 0.5 * powerDirection;
   activeTank.power = constrain(activeTank.power, 0, 100);
 }
 
@@ -171,10 +169,10 @@ function keyPressed() {
 function fire(tank) {
   tank.shotsLeft--;
   let angleInRadians = radians(tank.angle);
-  let launchSpeed = tank.power * PROJECTILE_SPEED_SCALE; 
+  let launchSpeed = tank.power * CONFIG.PROJECTILE_SPEED_SCALE; 
   
-  let startX = (tank.x + tank.width / 2) * CELL_SIZE + cos(angleInRadians) * 20;
-  let startY = tank.y * CELL_SIZE + sin(angleInRadians) * 20;
+  let startX = (tank.x + tank.width / 2) * CONFIG.CELL_SIZE + cos(angleInRadians) * 20;
+  let startY = tank.y * CONFIG.CELL_SIZE + sin(angleInRadians) * 20;
   
   let isBigShot = tank.consecutiveHits >= 3;
   if (isBigShot) tank.consecutiveHits = 0; 
@@ -208,8 +206,8 @@ function updateProjectile() {
   let nextX = currentProjectile.pos.x + currentProjectile.vel.x;
   let nextY = currentProjectile.pos.y + currentProjectile.vel.y;
   
-  let gridX = floor(nextX / CELL_SIZE);
-  let gridY = floor(nextY / CELL_SIZE);
+  let gridX = floor(nextX / CONFIG.CELL_SIZE);
+  let gridY = floor(nextY / CONFIG.CELL_SIZE);
   
   if (gridX < 0 || gridX >= cols || nextY > height) {
     switchTurn();
@@ -253,18 +251,18 @@ function updateProjectile() {
 }
 
 function isHittingTank(px, py, tank) {
-  let tx = tank.x * CELL_SIZE; let ty = tank.y * CELL_SIZE;
-  let tw = tank.width * CELL_SIZE; let th = tank.height * CELL_SIZE;
+  let tx = tank.x * CONFIG.CELL_SIZE; let ty = tank.y * CONFIG.CELL_SIZE;
+  let tw = tank.width * CONFIG.CELL_SIZE; let th = tank.height * CONFIG.CELL_SIZE;
   return (px >= tx && px <= tx + tw && py >= ty && py <= ty + th);
 }
 
 // --- EXPLOSIONS & DAMAGE ---
 function explode(pixelX, pixelY) {
   let isBig = currentProjectile.isBigPowerup;
-  let blastRadiusPixels = isBig ? 60 : 40; 
-  let blastRadiusGrid = floor(blastRadiusPixels / CELL_SIZE);
-  let gridX = floor(pixelX / CELL_SIZE);
-  let gridY = floor(pixelY / CELL_SIZE);
+  let blastRadiusPixels = isBig ? 60 : 40;
+  let blastRadiusGrid = floor(blastRadiusPixels / CONFIG.CELL_SIZE);
+  let gridX = floor(pixelX / CONFIG.CELL_SIZE);
+  let gridY = floor(pixelY / CONFIG.CELL_SIZE);
 
   impactEffects.push({
     x: pixelX,
@@ -304,11 +302,11 @@ function explode(pixelX, pixelY) {
 }
 
 function applyDamage(tank, ex, ey, radius, maxDmg, minDmg) {
-  let tankCenterX = (tank.x + tank.width / 2) * CELL_SIZE;
-  let tankCenterY = (tank.y + tank.height / 2) * CELL_SIZE;
+  let tankCenterX = (tank.x + tank.width / 2) * CONFIG.CELL_SIZE;
+  let tankCenterY = (tank.y + tank.height / 2) * CONFIG.CELL_SIZE;
   
   let d = dist(ex, ey, tankCenterX, tankCenterY);
-  let maxHitDistance = radius + (tank.width * CELL_SIZE / 2);
+  let maxHitDistance = radius + (tank.width * CONFIG.CELL_SIZE / 2);
   
   if (d < maxHitDistance) {
     let damage = map(d, 0, maxHitDistance, maxDmg, minDmg); 
@@ -419,20 +417,20 @@ function drawTerrain() {
       if (grid[x][y] === 1) {
         let texture = noise(x * 0.12, y * 0.18) * 20;
         fill(237 + texture * 0.35, 201 + texture * 0.45, 175 + texture * 0.25);
-        rect(x * CELL_SIZE + 0.5, y * CELL_SIZE + 0.5, CELL_SIZE + 0.6, CELL_SIZE + 0.6, 1.2);
+        rect(x * CONFIG.CELL_SIZE + 0.5, y * CONFIG.CELL_SIZE + 0.5, CONFIG.CELL_SIZE + 0.6, CONFIG.CELL_SIZE + 0.6, 1.2);
 
         if (y > 0 && grid[x][y - 1] === 0) {
           fill(250, 235, 210, 140);
-          rect(x * CELL_SIZE + 0.5, y * CELL_SIZE + 0.5, CELL_SIZE + 0.6, 1.8, 1.0);
+          rect(x * CONFIG.CELL_SIZE + 0.5, y * CONFIG.CELL_SIZE + 0.5, CONFIG.CELL_SIZE + 0.6, 1.8, 1.0);
         }
       } else if (grid[x][y] === 2) {
         let texture = noise(x * 0.12, y * 0.10) * 18;
         fill(100 + texture, 100 + texture * 0.6, 110 + texture * 0.4);
-        rect(x * CELL_SIZE + 0.5, y * CELL_SIZE + 0.5, CELL_SIZE + 0.6, CELL_SIZE + 0.6, 1.2);
+        rect(x * CONFIG.CELL_SIZE + 0.5, y * CONFIG.CELL_SIZE + 0.5, CONFIG.CELL_SIZE + 0.6, CONFIG.CELL_SIZE + 0.6, 1.2);
 
         if (y > 0 && grid[x][y - 1] !== 2) {
           fill(160, 160, 170, 85);
-          rect(x * CELL_SIZE + 0.5, y * CELL_SIZE + 0.5, CELL_SIZE + 0.6, 1.8, 1.0);
+          rect(x * CONFIG.CELL_SIZE + 0.5, y * CONFIG.CELL_SIZE + 0.5, CONFIG.CELL_SIZE + 0.6, 1.8, 1.0);
         }
       }
     }
@@ -449,29 +447,29 @@ function dropTanksToGround() {
 
 function drawTankBody(tank) {
   push();
-  translate(tank.x * CELL_SIZE, tank.y * CELL_SIZE);
+  translate(tank.x * CONFIG.CELL_SIZE, tank.y * CONFIG.CELL_SIZE);
 
   noStroke();
   fill(0, 0, 0, 40);
-  ellipse(tank.width * CELL_SIZE * 0.5, tank.height * CELL_SIZE + 5, tank.width * CELL_SIZE * 0.9, 6);
+  ellipse(tank.width * CONFIG.CELL_SIZE * 0.5, tank.height * CONFIG.CELL_SIZE + 5, tank.width * CONFIG.CELL_SIZE * 0.9, 6);
 
   stroke(18, 22, 36, 100);
   strokeWeight(0.8);
   fill(tank.color);
-  rect(0, 2, tank.width * CELL_SIZE, tank.height * CELL_SIZE - 2, 5);
+  rect(0, 2, tank.width * CONFIG.CELL_SIZE, tank.height * CONFIG.CELL_SIZE - 2, 5);
 
   noStroke();
   fill(tank.id === 1 ? color(255, 135, 135, 115) : color(150, 175, 255, 120));
-  rect(4, 5, tank.width * CELL_SIZE - 8, tank.height * CELL_SIZE * 0.32, 3.2);
+  rect(4, 5, tank.width * CONFIG.CELL_SIZE - 8, tank.height * CONFIG.CELL_SIZE * 0.32, 3.2);
 
   fill(tank.id === 1 ? color(230, 80, 80) : color(70, 110, 230));
-  rect(tank.width * CELL_SIZE * 0.18, 1, tank.width * CELL_SIZE * 0.5, tank.height * CELL_SIZE * 0.58, 3);
+  rect(tank.width * CONFIG.CELL_SIZE * 0.18, 1, tank.width * CONFIG.CELL_SIZE * 0.5, tank.height * CONFIG.CELL_SIZE * 0.58, 3);
 
   fill(255, 255, 255, 90);
-  rect(tank.width * CELL_SIZE * 0.23, 3, tank.width * CELL_SIZE * 0.16, tank.height * CELL_SIZE * 0.14, 1.6);
+  rect(tank.width * CONFIG.CELL_SIZE * 0.23, 3, tank.width * CONFIG.CELL_SIZE * 0.16, tank.height * CONFIG.CELL_SIZE * 0.14, 1.6);
 
   fill(15, 20, 30, 75);
-  rect(tank.width * CELL_SIZE * 0.67, 7, tank.width * CELL_SIZE * 0.16, tank.height * CELL_SIZE * 0.18, 2);
+  rect(tank.width * CONFIG.CELL_SIZE * 0.67, 7, tank.width * CONFIG.CELL_SIZE * 0.16, tank.height * CONFIG.CELL_SIZE * 0.18, 2);
   pop();
 }
 
@@ -482,11 +480,11 @@ function drawTanks() {
   drawTankBody(tank2);
 
   if (activeTank === tank1) {
-    stroke(255, 245, 120, 230); strokeWeight(5); noFill(); rect(tank1.x * CELL_SIZE - 3, tank1.y * CELL_SIZE - 3, tank1.width * CELL_SIZE + 6, tank1.height * CELL_SIZE + 6);
-    stroke(255, 165, 0, 180); strokeWeight(2); noFill(); rect(tank1.x * CELL_SIZE - 1, tank1.y * CELL_SIZE - 1, tank1.width * CELL_SIZE + 2, tank1.height * CELL_SIZE + 2);
+    stroke(255, 245, 120, 230); strokeWeight(5); noFill(); rect(tank1.x * CONFIG.CELL_SIZE - 3, tank1.y * CONFIG.CELL_SIZE - 3, tank1.width * CONFIG.CELL_SIZE + 6, tank1.height * CONFIG.CELL_SIZE + 6);
+    stroke(255, 165, 0, 180); strokeWeight(2); noFill(); rect(tank1.x * CONFIG.CELL_SIZE - 1, tank1.y * CONFIG.CELL_SIZE - 1, tank1.width * CONFIG.CELL_SIZE + 2, tank1.height * CONFIG.CELL_SIZE + 2);
   } else if (activeTank === tank2) {
-    stroke(255, 245, 120, 230); strokeWeight(5); noFill(); rect(tank2.x * CELL_SIZE - 3, tank2.y * CELL_SIZE - 3, tank2.width * CELL_SIZE + 6, tank2.height * CELL_SIZE + 6);
-    stroke(255, 165, 0, 180); strokeWeight(2); noFill(); rect(tank2.x * CELL_SIZE - 1, tank2.y * CELL_SIZE - 1, tank2.width * CELL_SIZE + 2, tank2.height * CELL_SIZE + 2);
+    stroke(255, 245, 120, 230); strokeWeight(5); noFill(); rect(tank2.x * CONFIG.CELL_SIZE - 3, tank2.y * CONFIG.CELL_SIZE - 3, tank2.width * CONFIG.CELL_SIZE + 6, tank2.height * CONFIG.CELL_SIZE + 6);
+    stroke(255, 165, 0, 180); strokeWeight(2); noFill(); rect(tank2.x * CONFIG.CELL_SIZE - 1, tank2.y * CONFIG.CELL_SIZE - 1, tank2.width * CONFIG.CELL_SIZE + 2, tank2.height * CONFIG.CELL_SIZE + 2);
   }
 
   drawBarrel(tank1); drawBarrel(tank2);
@@ -494,7 +492,7 @@ function drawTanks() {
 
 function drawBarrel(tank) {
   push();
-  translate((tank.x + tank.width / 2) * CELL_SIZE, tank.y * CELL_SIZE);
+  translate((tank.x + tank.width / 2) * CONFIG.CELL_SIZE, tank.y * CONFIG.CELL_SIZE);
   rotate(radians(tank.angle));
   
   strokeWeight(3); stroke(0); line(0, 0, 20, 0);
@@ -510,9 +508,9 @@ function drawAimLine() {
   if (!activeTank) return;
 
   let angleInRadians = radians(activeTank.angle);
-  let launchSpeed = activeTank.power * PROJECTILE_SPEED_SCALE;
-  let startX = (activeTank.x + activeTank.width / 2) * CELL_SIZE;
-  let startY = activeTank.y * CELL_SIZE;
+  let launchSpeed = activeTank.power * CONFIG.PROJECTILE_SPEED_SCALE;
+  let startX = (activeTank.x + activeTank.width / 2) * CONFIG.CELL_SIZE;
+  let startY = activeTank.y * CONFIG.CELL_SIZE;
   let velocityX = cos(angleInRadians) * launchSpeed;
   let velocityY = sin(angleInRadians) * launchSpeed;
 
@@ -530,8 +528,8 @@ function drawAimLine() {
 
     if (x < 0 || x > width || y > height) break;
 
-    let checkX = floor(x / CELL_SIZE);
-    let checkY = floor(y / CELL_SIZE);
+    let checkX = floor(x / CONFIG.CELL_SIZE);
+    let checkY = floor(y / CONFIG.CELL_SIZE);
     if (checkX < 0 || checkX >= cols || checkY < 0 || checkY >= rows) break;
     if (grid[checkX][checkY] !== 0) break;
   }
