@@ -53,8 +53,8 @@ beforeAll(() => {
   global.beginShape = () => {};
   global.endShape = () => {};
   global.frameCount = 0;
-  global.width = 800;
-  global.height = 600;
+  global.width = 1024;
+  global.height = 768;
   global.LEFT = 'left';
   global.RIGHT = 'right';
   global.CENTER = 'center';

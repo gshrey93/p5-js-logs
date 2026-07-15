@@ -23,7 +23,7 @@ function preload() {
 window.preload = preload;
 
 window.setup = function() {
-  const canvas = createCanvas(800, 600);
+  const canvas = createCanvas(1024, 768);
   canvas.parent('main');
   state.cols = width / CONFIG.CELL_SIZE;
   state.rows = height / CONFIG.CELL_SIZE;

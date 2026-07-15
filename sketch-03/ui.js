@@ -112,14 +112,14 @@ export function drawUI() {
   // --- PLAYER 1 UI ---
   textAlign(LEFT); textSize(16);
   let p1Combo = state.tank1.isBigShotReady() ? "BIG SHOT READY!" : `Combo: ${state.tank1.consecutiveHits}/3`;
-  text(`HP: ${round(state.tank1.health)} | Shots: ${state.tank1.shotsLeft} | ${p1Combo}`, 10, 20);
-  text(`Angle: ${abs(round(state.tank1.angle))}° | Power: ${round(state.tank1.power)}`, 10, 40);
+  text(`HP: ${round(state.tank1.health)} | Shots: ${state.tank1.shotsLeft} | ${p1Combo}`, 10, 65);
+  text(`Angle: ${abs(round(state.tank1.angle))}° | Power: ${round(state.tank1.power)}`, 10, 85);
 
   // --- PLAYER 2 UI ---
   fill(0); textAlign(RIGHT); textSize(16);
   let p2Combo = state.tank2.isBigShotReady() ? "BIG SHOT READY!" : `Combo: ${state.tank2.consecutiveHits}/3`;
-  text(`HP: ${round(state.tank2.health)} | Shots: ${state.tank2.shotsLeft} | ${p2Combo}`, width - 10, 20);
-  text(`Angle: ${abs(round(state.tank2.angle))}° | Power: ${round(state.tank2.power)}`, width - 10, 40);
+  text(`HP: ${round(state.tank2.health)} | Shots: ${state.tank2.shotsLeft} | ${p2Combo}`, width - 10, 65);
+  text(`Angle: ${abs(round(state.tank2.angle))}° | Power: ${round(state.tank2.power)}`, width - 10, 85);
 
   // --- CENTER STATUS (TURN + WIND + GRAVITY) ---
   textAlign(CENTER); textSize(20);

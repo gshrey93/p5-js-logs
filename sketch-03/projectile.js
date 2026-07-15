@@ -6,7 +6,9 @@ import { spawnLaunchSparks } from './particles.js';
 // --- FIRING ---
 
 export function fire(tank) {
-  if (state.fireSound.isLoaded()) state.fireSound.play();
+  if (state.fireSound && typeof state.fireSound.isLoaded === 'function' && state.fireSound.isLoaded()) {
+    state.fireSound.play();
+  }
 
   tank.shotsLeft--;
   let angleInRadians = radians(tank.angle);
@@ -96,7 +98,9 @@ export function updateProjectile() {
 // --- EXPLOSIONS & DAMAGE ---
 
 export function explode(pixelX, pixelY) {
-  if (state.explosionSound.isLoaded()) state.explosionSound.play();
+  if (state.explosionSound && typeof state.explosionSound.isLoaded === 'function' && state.explosionSound.isLoaded()) {
+    state.explosionSound.play();
+  }
 
   let isBig = state.currentProjectile.isBigPowerup;
   let blastRadiusPixels = isBig ? 60 : 40;
