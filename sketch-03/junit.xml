@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="22" failures="0" errors="0" time="0.744">
+  <testsuite name="Artillery Duel Game Logic" errors="0" failures="0" skipped="0" timestamp="2026-07-15T16:03:26" time="0.379" tests="22">
+    <testcase classname="Artillery Duel Game Logic Tank should initialize with correct defaults" name="Artillery Duel Game Logic Tank should initialize with correct defaults" time="0.001">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank should not drop health below 0" name="Artillery Duel Game Logic Tank should not drop health below 0" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank should reduce health by damage amount" name="Artillery Duel Game Logic Tank should reduce health by damage amount" time="0.001">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank isBigShotReady returns false when consecutiveHits &lt; 3" name="Artillery Duel Game Logic Tank isBigShotReady returns false when consecutiveHits &lt; 3" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank isBigShotReady returns true when consecutiveHits &gt;= 3" name="Artillery Duel Game Logic Tank isBigShotReady returns true when consecutiveHits &gt;= 3" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank isHit detects a point inside the tank bounding box" name="Artillery Duel Game Logic Tank isHit detects a point inside the tank bounding box" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Tank isHit rejects a point outside the tank bounding box" name="Artillery Duel Game Logic Tank isHit rejects a point outside the tank bounding box" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic applyDamage (distance-based) should apply maximum damage on a direct hit" name="Artillery Duel Game Logic applyDamage (distance-based) should apply maximum damage on a direct hit" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic applyDamage (distance-based) should apply no damage if explosion is too far" name="Artillery Duel Game Logic applyDamage (distance-based) should apply no damage if explosion is too far" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic applyDamage (distance-based) should apply partial damage within the blast radius" name="Artillery Duel Game Logic applyDamage (distance-based) should apply partial damage within the blast radius" time="0.001">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic applyDamage (distance-based) Big Shot applies more maximum damage than normal shot" name="Artillery Duel Game Logic applyDamage (distance-based) Big Shot applies more maximum damage than normal shot" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic GAME_STATE enum has all required states" name="Artillery Duel Game Logic GAME_STATE enum has all required states" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic CONFIG CELL_SIZE is a positive number" name="Artillery Duel Game Logic CONFIG CELL_SIZE is a positive number" time="0.001">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic CONFIG MAX_SHOTS is a positive integer" name="Artillery Duel Game Logic CONFIG MAX_SHOTS is a positive integer" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic CONFIG PROJECTILE_SPEED_SCALE is between 0 and 1" name="Artillery Duel Game Logic CONFIG PROJECTILE_SPEED_SCALE is between 0 and 1" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Combo System consecutiveHits increments correctly" name="Artillery Duel Game Logic Combo System consecutiveHits increments correctly" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Combo System consecutiveHits resets to 0 properly" name="Artillery Duel Game Logic Combo System consecutiveHits resets to 0 properly" time="0.001">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Input Constraints power is constrained between 0 and 100" name="Artillery Duel Game Logic Input Constraints power is constrained between 0 and 100" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Input Constraints angle is constrained between -180 and 0" name="Artillery Duel Game Logic Input Constraints angle is constrained between -180 and 0" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Shot Tracking tank starts with MAX_SHOTS" name="Artillery Duel Game Logic Shot Tracking tank starts with MAX_SHOTS" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Shot Tracking shotsLeft decreases when firing" name="Artillery Duel Game Logic Shot Tracking shotsLeft decreases when firing" time="0">
+    </testcase>
+    <testcase classname="Artillery Duel Game Logic Shot Tracking cannot fire when out of ammo (shotsLeft === 0)" name="Artillery Duel Game Logic Shot Tracking cannot fire when out of ammo (shotsLeft === 0)" time="0.012">
+    </testcase>
+  </testsuite>
+</testsuites>
