@@ -110,6 +110,28 @@ function handleInput() {
   if (keyIsDown(RIGHT_ARROW)) activeTank.power += 0.5 * powerDirection;
   if (keyIsDown(LEFT_ARROW)) activeTank.power -= 0.5 * powerDirection;
   activeTank.power = constrain(activeTank.power, 0, 100);
+
+  // Tank Movement (A = Left, D = Right)
+  let moved = false;
+  if (keyIsDown(65)) { // 'A' key
+    activeTank.x -= CONFIG.TANK_SPEED;
+    moved = true;
+  }
+  if (keyIsDown(68)) { // 'D' key
+    activeTank.x += CONFIG.TANK_SPEED;
+    moved = true;
+  }
+
+  if (moved) {
+    if (activeTank.id === 1) {
+      // Tank 1 cannot move past Tank 2
+      activeTank.x = constrain(activeTank.x, 0, state.tank2.x - activeTank.width);
+    } else {
+      // Tank 2 cannot move past Tank 1
+      activeTank.x = constrain(activeTank.x, state.tank1.x + state.tank1.width, state.cols - activeTank.width);
+    }
+    dropTanksToGround();
+  }
 }
 
 window.keyPressed = function() {

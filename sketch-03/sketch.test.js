@@ -315,4 +315,51 @@ describe('Artillery Duel Game Logic', () => {
       expect(tank.shotsLeft > 0).toBe(false);
     });
   });
+
+  // ----------------------------------------------------------
+  // 8. Tank Movement
+  // ----------------------------------------------------------
+  describe('Tank Movement', () => {
+    let tank1, tank2;
+    const cols = 200;
+
+    beforeEach(() => {
+      tank1 = new Tank(1, 30, { r: 220, g: 65, b: 65, a: 255 }, -45);
+      tank2 = new Tank(2, 170, { r: 60, g: 105, b: 230, a: 255 }, -135);
+    });
+
+    test('Tank 1 cannot move past 0 or past Tank 2', () => {
+      const constrain = (val, low, high) => Math.max(low, Math.min(high, val));
+      const tankSpeed = 0.5;
+
+      // Move left towards 0
+      tank1.x = 0.2;
+      tank1.x -= tankSpeed;
+      tank1.x = constrain(tank1.x, 0, tank2.x - tank1.width);
+      expect(tank1.x).toBe(0);
+
+      // Move right towards Tank 2
+      tank1.x = tank2.x - tank1.width - 0.2;
+      tank1.x += tankSpeed;
+      tank1.x = constrain(tank1.x, 0, tank2.x - tank1.width);
+      expect(tank1.x).toBe(tank2.x - tank1.width);
+    });
+
+    test('Tank 2 cannot move past screen width or past Tank 1', () => {
+      const constrain = (val, low, high) => Math.max(low, Math.min(high, val));
+      const tankSpeed = 0.5;
+
+      // Move right towards boundary
+      tank2.x = cols - tank2.width - 0.2;
+      tank2.x += tankSpeed;
+      tank2.x = constrain(tank2.x, tank1.x + tank1.width, cols - tank2.width);
+      expect(tank2.x).toBe(cols - tank2.width);
+
+      // Move left towards Tank 1
+      tank2.x = tank1.x + tank1.width + 0.2;
+      tank2.x -= tankSpeed;
+      tank2.x = constrain(tank2.x, tank1.x + tank1.width, cols - tank2.width);
+      expect(tank2.x).toBe(tank1.x + tank1.width);
+    });
+  });
 });

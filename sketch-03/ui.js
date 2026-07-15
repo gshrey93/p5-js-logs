@@ -95,10 +95,10 @@ function getTurnBannerText() {
 
 function getActiveControlHint() {
   if (state.gameState === GAME_STATE.P1_TURN) {
-    return "Player 1: Aim ↑ ↓  |  Power: Left reduces, Right increases  |  Fire Space";
+    return "Player 1: Move A/D  |  Aim ↑ ↓  |  Power: Left reduces, Right increases  |  Fire Space";
   }
   if (state.gameState === GAME_STATE.P2_TURN) {
-    return "Player 2: Aim ↑ ↓  |  Power: Left increases, Right reduces  |  Fire Space";
+    return "Player 2: Move A/D  |  Aim ↑ ↓  |  Power: Left increases, Right reduces  |  Fire Space";
   }
   if (state.gameState === GAME_STATE.PROJECTILE_AIRBORNE) {
     return "Shell is airborne — wait for impact or turn change";

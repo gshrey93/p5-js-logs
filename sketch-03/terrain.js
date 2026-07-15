@@ -64,10 +64,12 @@ export function drawTerrain() {
 }
 
 export function dropTanksToGround() {
+  const t1x = constrain(floor(state.tank1.x), 0, state.cols - 1);
+  const t2x = constrain(floor(state.tank2.x), 0, state.cols - 1);
   for (let y = 0; y < state.rows; y++) {
-    if (state.grid[state.tank1.x][y] !== 0) { state.tank1.y = y - state.tank1.height; break; }
+    if (state.grid[t1x][y] !== 0) { state.tank1.y = y - state.tank1.height; break; }
   }
   for (let y = 0; y < state.rows; y++) {
-    if (state.grid[state.tank2.x][y] !== 0) { state.tank2.y = y - state.tank2.height; break; }
+    if (state.grid[t2x][y] !== 0) { state.tank2.y = y - state.tank2.height; break; }
   }
 }

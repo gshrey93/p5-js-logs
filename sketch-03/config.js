@@ -2,6 +2,7 @@ export const CONFIG = {
   CELL_SIZE: 4,
   MAX_SHOTS: 10,
   PROJECTILE_SPEED_SCALE: 0.10,
+  TANK_SPEED: 0.5,
 };
 
 export const GAME_STATE = {
