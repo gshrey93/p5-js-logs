@@ -12,15 +12,14 @@
         background-color: #111;
         font-family: Arial, sans-serif;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100vh;
       }
 
       .back-btn {
-        position: fixed;
-        top: 12px;
-        left: 12px;
+        margin-bottom: 12px;
         z-index: 3;
         text-decoration: none;
         color: white;
@@ -30,7 +29,7 @@
       }
 
       #game-overlay {
-        position: fixed;
+        position: absolute;
         inset: 0;
         display: flex;
         align-items: center;
@@ -68,19 +67,32 @@
         background: #1f7fff;
         color: white;
       }
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .game-container {
+        position: relative;
+        z-index: 1;
+      }
+
     </style>
   </head>
   <body>
-    <a href="../" class="back-btn">← Back to Gallery</a>
-
-    <div id="game-overlay" class="hidden">
-      <div class="overlay-card">
-        <p id="game-status">Match complete</p>
-        <button id="restart-btn" type="button">Restart Match</button>
+    <div class="wrapper">
+      <a href="../" class="back-btn">← Back to Gallery</a>
+      <div class="game-container">
+        <div id="game-overlay" class="hidden">
+          <div class="overlay-card">
+            <p id="game-status">Match complete</p>
+            <button id="restart-btn" type="button">Restart Match</button>
+          </div>
+        </div>
+        <main id="main"></main>
       </div>
     </div>
-
-    <main id="main"></main>
 
     <script src="sketch.js" type="module"></script>
   </body>
