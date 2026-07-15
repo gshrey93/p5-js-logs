@@ -2,7 +2,6 @@
 
 A classic turn-based artillery game built with p5.js, inspired by hits like *Scorched Earth* and *Pocket Tanks*. Two players command their tanks on a procedurally generated, destructible terrain, adjusting their aim, power, and strategy to account for dynamic wind and gravity.
 
-![Artillery Duel Gameplay](https://raw.githubusercontent.com/gshrey93/p5-js-logs/main/sketch-03/artillery-duel-preview.png)
 
 ## Game Objective
 
