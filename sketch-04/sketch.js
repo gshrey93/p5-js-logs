@@ -17,6 +17,9 @@ function setup() {
   
   // Get the main UI container from the HTML
   const uiContainer = select('#ui-container');
+
+  // Create the "Back to Gallery" link dynamically
+  createA('../', '← Back to Gallery').addClass('back-btn');
   
   // Create and parent all UI elements to the container
   createElement('h3', 'Fibonacci Palindrome Finder').parent(uiContainer);
