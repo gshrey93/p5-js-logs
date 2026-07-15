@@ -519,6 +519,18 @@ function drawBarrel(tank) {
   translate((tank.x + tank.width / 2) * CONFIG.CELL_SIZE, tank.y * CONFIG.CELL_SIZE);
   rotate(radians(tank.angle));
   
+  // Add a pulsing glow for "Big Shot" ready
+  if (tank.consecutiveHits >= 3) {
+    let pulse = sin(frameCount * 0.1) * 4 + 4;
+    noFill();
+    stroke(255, 100, 100, 150);
+    strokeWeight(pulse + 2);
+    line(0, 0, 20, 0);
+    stroke(255, 255, 150, 180);
+    strokeWeight(pulse);
+    line(0, 0, 20, 0);
+  }
+
   strokeWeight(3); stroke(0); line(0, 0, 20, 0);
   if ((tank === tank1 && gameState === "P1_TURN") || (tank === tank2 && gameState === "P2_TURN")) {
     strokeWeight(4); stroke(255, 245, 120, 255); line(20, 0, 20 + tank.power, 0);
