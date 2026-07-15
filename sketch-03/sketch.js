@@ -26,7 +26,8 @@ let wind = 0;
 let gravityForce = 0.2; // Baseline is 0.2
 
 function setup() {
-  createCanvas(800, 600);
+  const canvas = createCanvas(800, 600);
+  canvas.parent('main');
   cols = width / CONFIG.CELL_SIZE;
   rows = height / CONFIG.CELL_SIZE;
 
