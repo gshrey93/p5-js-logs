@@ -1,259 +1,425 @@
-// DINO RUN: A Captivating Endless Runner
-// By: An AI Assistant & You
-// INSTRUCTIONS ARE ON-SCREEN
+// sketch.js — Main orchestrator
+// Wires up p5.js lifecycle and delegates to each module.
 
-// --- Game State & Configuration ---
-let gameState = 'START'; // START, PLAY, GAME_OVER
+import { CONFIG, GAME_STATE } from './config.js';
+import { Dino } from './dino.js';
+import { Obstacle } from './obstacle.js';
+import { Booster, ActiveBooster, createRandomBooster, BOOSTER_TYPE } from './booster.js';
+import {
+  envState, initEnvironment, updateColors,
+  drawBackground, drawGround, updateBackgroundElements,
+} from './environment.js';
+
+// ============================================================
+// GAME STATE
+// ============================================================
+
+let gameState = GAME_STATE.START;
 let score = 0;
-let gameSpeed = 6;
-const initialGameSpeed = 6;
-const gameSpeedIncrease = 0.001;
+let highScore = parseInt(localStorage.getItem('dinoHighScore') || '0', 10);
+let gameSpeed = CONFIG.INITIAL_SPEED;
 
-// --- Player (Dino) ---
 let dino;
-
-// --- Obstacles ---
 let obstacles = [];
+let boosters = [];
+let activeBooster = new ActiveBooster();
+
+// Spawning timers
 let obstacleTimer = 0;
 let nextObstacleTime = 0;
+let boosterTimer = 0;
+let nextBoosterTime = 0;
 
-// --- Environment ---
-const groundHeight = 50;
-let timeOfDay = 0; // 0 to 1, where 0 is noon, 0.5 is midnight
-const dayNightCycleSpeed = 0.0001;
-let skyColor;
-let groundColor;
-let mountainColor;
+// Collision feedback
+let screenShake = 0;
+let redFlashAlpha = 0;
+let deathSlowMo = 0;
+let collisionParticles = [];
 
-// --- Background Layers (for parallax) ---
-let farClouds = [];
-let nearClouds = [];
-let mountains = [];
+// Score milestone flash
+let milestoneFlash = 0;
+let lastMilestone = 0;
 
-// --- Fonts & Styling ---
-let pixelFont;
+// ============================================================
+// p5.js LIFECYCLE
+// ============================================================
 
-// --- Art Assets (drawn programmatically) ---
-const dinoArt = {
-  run1: [
-    "       ███     ",
-    "      █████    ",
-    "      ██████   ",
-    "      ██████   ",
-    "██    ██████   ",
-    "████  ██████   ",
-    "████████████   ",
-    "███████████    ",
-    " ██████████    ",
-    "  ████████     ",
-    "   ██████      ",
-    "    ████       ",
-    "    ██ ██      ",
-    "    ██  ██     ",
-    "    ██         ",
-    "     ██        "
-  ],
-  run2: [
-    "       ███     ",
-    "      █████    ",
-    "      ██████   ",
-    "      ██████   ",
-    "██    ██████   ",
-    "████  ██████   ",
-    "████████████   ",
-    "███████████    ",
-    " ██████████    ",
-    "  ████████     ",
-    "   ██████      ",
-    "    ████       ",
-    "    ██  ██     ",
-    "    ██   ██    ",
-    "    ██         ",
-    "     ██        "
-  ]
-};
-
-const cactusArt = {
-  small: [
-    "  █  ",
-    " ██  ",
-    "███  ",
-    " █   ",
-    " █   "
-  ],
-  medium: [
-    "  █  ",
-    "█ █ ██",
-    "█ █ █ ",
-    "  █   ",
-    "  █   "
-  ],
-  large: [
-    " █  █ ",
-    "██  █ ",
-    "███ █ ",
-    "  █   ",
-    "  █   "
-  ]
-};
-
-// =================================================================
-// P5.JS SETUP FUNCTION - Runs once at the beginning
-// =================================================================
-function setup() {
-  createCanvas(800, 400);
+window.setup = function () {
+  const canvas = createCanvas(CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+  canvas.parent('main');
   textFont('monospace');
-  noSmooth(); // Essential for a crisp pixelated look
+  noSmooth();
 
-  // Initialize background elements
-  for (let i = 0; i < 5; i++) {
-    mountains.push({ x: random(width), y: height - groundHeight - random(20, 80), w: random(100, 300), h: random(50, 100) });
-  }
-  for (let i = 0; i < 10; i++) {
-    farClouds.push({ x: random(width), y: random(50, 150), w: random(40, 80), h: random(10, 20) });
-    nearClouds.push({ x: random(width), y: random(150, 200), w: random(60, 100), h: random(15, 30) });
-  }
-  
+  initEnvironment();
   resetGame();
+};
+
+function resetGame() {
+  score = 0;
+  gameSpeed = CONFIG.INITIAL_SPEED;
+  obstacles = [];
+  boosters = [];
+  activeBooster = new ActiveBooster();
+  obstacleTimer = 0;
+  boosterTimer = 0;
+  setNextObstacleTime();
+  setNextBoosterTime();
+  screenShake = 0;
+  redFlashAlpha = 0;
+  deathSlowMo = 0;
+  collisionParticles = [];
+  milestoneFlash = 0;
+  lastMilestone = 0;
+
+  dino = new Dino();
+  initEnvironment();
 }
 
-// =================================================================
-// P5.JS DRAW FUNCTION - Runs continuously in a loop
-// =================================================================
-function draw() {
+window.draw = function () {
   updateColors();
 
+  // Apply screen shake offset
+  push();
+  if (screenShake > 0) {
+    translate(random(-screenShake, screenShake), random(-screenShake, screenShake));
+    screenShake *= 0.85;
+    if (screenShake < 0.5) screenShake = 0;
+  }
+
   switch (gameState) {
-    case 'START':
+    case GAME_STATE.START:
       drawBackground();
       drawGround();
       drawStartScreen();
       break;
-    case 'PLAY':
+    case GAME_STATE.PLAY:
       handleGameLogic();
       drawGameElements();
       break;
-    case 'GAME_OVER':
-      drawGameElements(); // Draw the final state
-      drawGameOverScreen();
+    case GAME_STATE.GAME_OVER:
+      if (deathSlowMo > 0) {
+        deathSlowMo--;
+        // During slow-mo: still draw but don't update
+      }
+      drawGameElements();
+      drawCollisionFeedback();
+      if (deathSlowMo <= 0) {
+        drawGameOverScreen();
+      }
       break;
+  }
+
+  pop();
+};
+
+// ============================================================
+// INPUT
+// ============================================================
+
+window.keyPressed = function () {
+  if (gameState === GAME_STATE.PLAY && (key === ' ' || keyCode === UP_ARROW)) {
+    dino.jump();
+  } else if (gameState === GAME_STATE.PLAY && keyCode === DOWN_ARROW) {
+    dino.crouch();
+  } else if (gameState === GAME_STATE.START || gameState === GAME_STATE.GAME_OVER) {
+    if (deathSlowMo > 0) return; // don't restart during slow-mo
+    resetGame();
+    gameState = GAME_STATE.PLAY;
+  }
+};
+
+window.keyReleased = function () {
+  if (keyCode === DOWN_ARROW && dino) {
+    dino.uncrouch();
+  }
+};
+
+window.mousePressed = function () {
+  if (gameState === GAME_STATE.PLAY) {
+    dino.jump();
+  } else if (gameState === GAME_STATE.START || gameState === GAME_STATE.GAME_OVER) {
+    if (deathSlowMo > 0) return;
+    resetGame();
+    gameState = GAME_STATE.PLAY;
+  }
+};
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+
+function handleGameLogic() {
+  // Apply slow-mo booster
+  let effectiveSpeed = gameSpeed;
+  if (activeBooster.isActive(BOOSTER_TYPE.SLOW_MO)) {
+    effectiveSpeed = gameSpeed * 0.3;
+  } else if (activeBooster.isActive(BOOSTER_TYPE.SPEED_BURST)) {
+    effectiveSpeed = gameSpeed * 2;
+  }
+
+  dino.update();
+  updateObstacles(effectiveSpeed);
+  updateBoosters(effectiveSpeed);
+  updateBackgroundElements(effectiveSpeed);
+  activeBooster.update();
+
+  // Score — speed burst gives 2× score
+  let scoreMultiplier = activeBooster.isActive(BOOSTER_TYPE.SPEED_BURST) ? 2 : 1;
+  score += 0.1 * (effectiveSpeed / CONFIG.INITIAL_SPEED) * scoreMultiplier;
+
+  // Difficulty ramp
+  gameSpeed += CONFIG.SPEED_INCREASE;
+
+  // Score milestones
+  checkScoreMilestone();
+
+  // Update collision particles
+  updateCollisionParticles();
+}
+
+// ============================================================
+// OBSTACLES
+// ============================================================
+
+function updateObstacles(effectiveSpeed) {
+  obstacleTimer += deltaTime;
+  if (obstacleTimer > nextObstacleTime) {
+    obstacles.push(new Obstacle(effectiveSpeed, score));
+    setNextObstacleTime();
+  }
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    obstacles[i].update(effectiveSpeed);
+
+    if (obstacles[i].isOffscreen()) {
+      // Obstacle passed — increment streak
+      if (!obstacles[i].scored) {
+        dino.incrementStreak();
+        obstacles[i].scored = true;
+      }
+      obstacles.splice(i, 1);
+      continue; // FIX #1: skip collision check after splice
+    }
+
+    // Mark as passed if dino has cleared it
+    if (!obstacles[i].scored && obstacles[i].x + obstacles[i].w < dino.x) {
+      obstacles[i].scored = true;
+      dino.incrementStreak();
+    }
+
+    // Collision check
+    if (obstacles[i].collidesWith(dino)) {
+      // Check for speed burst invincibility
+      if (activeBooster.isActive(BOOSTER_TYPE.SPEED_BURST)) {
+        continue; // invincible during speed burst
+      }
+
+      // Check for shield
+      if (activeBooster.absorbHit()) {
+        // Shield absorbed the hit — spawn particles but continue
+        spawnCollisionParticles(obstacles[i].x, obstacles[i].y);
+        obstacles.splice(i, 1);
+        continue;
+      }
+
+      // Game over with collision feedback
+      triggerGameOver(obstacles[i].x, obstacles[i].y);
+      return;
+    }
   }
 }
 
-// =================================================================
-// Game State Handlers
-// =================================================================
-
-function handleGameLogic() {
-  // Update game elements
-  dino.update();
-  updateObstacles();
-  updateBackgroundElements();
-  
-  // Update score and difficulty
-  score += 0.1 * (gameSpeed / initialGameSpeed);
-  gameSpeed += gameSpeedIncrease;
-  
-  // Update day/night cycle
-  timeOfDay = (timeOfDay + dayNightCycleSpeed * (gameSpeed / initialGameSpeed)) % 1;
+function setNextObstacleTime() {
+  obstacleTimer = 0;
+  let baseTime = 1500;
+  nextObstacleTime = random(baseTime, baseTime * 1.5) / (gameSpeed / CONFIG.INITIAL_SPEED);
 }
+
+// ============================================================
+// BOOSTERS
+// ============================================================
+
+function updateBoosters(effectiveSpeed) {
+  boosterTimer += deltaTime;
+  if (boosterTimer > nextBoosterTime) {
+    boosters.push(createRandomBooster(effectiveSpeed));
+    setNextBoosterTime();
+  }
+
+  for (let i = boosters.length - 1; i >= 0; i--) {
+    boosters[i].update(effectiveSpeed);
+
+    if (boosters[i].isOffscreen()) {
+      boosters.splice(i, 1);
+      continue;
+    }
+
+    if (boosters[i].collidesWith(dino)) {
+      activeBooster.activate(boosters[i].type);
+      boosters[i].collected = true;
+      boosters.splice(i, 1);
+    }
+  }
+}
+
+function setNextBoosterTime() {
+  boosterTimer = 0;
+  // Boosters are rarer than obstacles: every 10-20 seconds
+  nextBoosterTime = random(10000, 20000) / (gameSpeed / CONFIG.INITIAL_SPEED);
+}
+
+// ============================================================
+// COLLISION FEEDBACK
+// ============================================================
+
+function triggerGameOver(collisionX, collisionY) {
+  gameState = GAME_STATE.GAME_OVER;
+  screenShake = 12;
+  redFlashAlpha = 180;
+  deathSlowMo = 30;
+  dino.resetStreak();
+
+  spawnCollisionParticles(collisionX, collisionY);
+
+  // Save high score
+  if (score > highScore) {
+    highScore = floor(score);
+    localStorage.setItem('dinoHighScore', String(highScore));
+  }
+}
+
+function spawnCollisionParticles(cx, cy) {
+  for (let i = 0; i < 15; i++) {
+    collisionParticles.push({
+      x: cx,
+      y: cy,
+      vx: random(-4, 4),
+      vy: random(-6, 2),
+      size: random(3, 8),
+      life: 40,
+      color: random() > 0.5
+        ? { r: 255, g: 100, b: 50 }
+        : { r: 255, g: 220, b: 80 },
+    });
+  }
+}
+
+function updateCollisionParticles() {
+  for (let i = collisionParticles.length - 1; i >= 0; i--) {
+    const p = collisionParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.2; // gravity
+    p.life--;
+    if (p.life <= 0) {
+      collisionParticles.splice(i, 1);
+    }
+  }
+}
+
+function drawCollisionFeedback() {
+  // Red flash overlay
+  if (redFlashAlpha > 0) {
+    noStroke();
+    fill(255, 0, 0, redFlashAlpha);
+    rect(0, 0, width, height);
+    redFlashAlpha *= 0.9;
+    if (redFlashAlpha < 2) redFlashAlpha = 0;
+  }
+
+  // Collision particles
+  noStroke();
+  collisionParticles.forEach(p => {
+    const alpha = map(p.life, 0, 40, 0, 255);
+    fill(p.color.r, p.color.g, p.color.b, alpha);
+    rect(p.x, p.y, p.size, p.size);
+  });
+}
+
+// ============================================================
+// SCORE MILESTONES
+// ============================================================
+
+function checkScoreMilestone() {
+  const s = floor(score);
+  const milestones = [100, 500, 1000, 2000, 5000, 10000];
+  for (const m of milestones) {
+    if (s >= m && lastMilestone < m) {
+      lastMilestone = m;
+      milestoneFlash = 40;
+    }
+  }
+}
+
+function drawMilestoneFlash() {
+  if (milestoneFlash <= 0) return;
+
+  milestoneFlash--;
+  const alpha = map(milestoneFlash, 0, 40, 0, 120);
+
+  noStroke();
+  fill(255, 255, 255, alpha);
+  rect(0, 0, width, height);
+
+  textAlign(CENTER, CENTER);
+  textSize(40);
+  fill(255, 220, 50, alpha * 2);
+  stroke(0, 0, 0, alpha);
+  strokeWeight(3);
+  text(`${lastMilestone}!`, width / 2, height / 2 - 40);
+}
+
+// ============================================================
+// DRAWING
+// ============================================================
 
 function drawGameElements() {
   drawBackground();
-  drawObstacles();
-  dino.draw();
+
+  // Boosters
+  boosters.forEach(b => b.draw());
+
+  // Obstacles
+  obstacles.forEach(obs => obs.draw(envState.timeOfDay));
+
+  // Dino
+  dino.draw(envState.timeOfDay);
+
   drawGround();
   drawHUD();
-}
-
-// =================================================================
-// Game Setup and Reset
-// =================================================================
-
-function resetGame() {
-  score = 0;
-  gameSpeed = initialGameSpeed;
-  obstacles = [];
-  obstacleTimer = 0;
-  setNextObstacleTime();
-  
-  // Create the player character
-  dino = new Dino();
-}
-
-// =================================================================
-// Player Input
-// =================================================================
-
-function keyPressed() {
-  if (gameState === 'PLAY' && (key === ' ' || keyCode === UP_ARROW)) {
-    dino.jump();
-  } else if (gameState === 'START' || gameState === 'GAME_OVER') {
-    resetGame();
-    gameState = 'PLAY';
-  }
-}
-
-function mousePressed() {
-  if (gameState === 'PLAY') {
-    dino.jump();
-  } else if (gameState === 'START' || gameState === 'GAME_OVER') {
-    resetGame();
-    gameState = 'PLAY';
-  }
-}
-
-
-// =================================================================
-// Drawing Functions
-// =================================================================
-
-function drawBackground() {
-  background(skyColor);
-  
-  // Draw sun/moon
-  let sunMoonX = width / 2;
-  let sunMoonY = map(sin(timeOfDay * TWO_PI), -1, 1, height/2, 50);
-  fill(timeOfDay < 0.25 || timeOfDay > 0.75 ? color(255, 255, 200) : color(230, 230, 250));
-  noStroke();
-  ellipse(sunMoonX, sunMoonY, 50, 50);
-
-  // Far clouds (slowest)
-  fill(red(skyColor)+15, green(skyColor)+15, blue(skyColor)+15, 200);
-  farClouds.forEach(c => rect(c.x, c.y, c.w, c.h, 10));
-  
-  // Mountains
-  fill(mountainColor);
-  mountains.forEach(m => {
-    beginShape();
-    vertex(m.x, m.y + m.h);
-    vertex(m.x + m.w / 2, m.y);
-    vertex(m.x + m.w, m.y + m.h);
-    endShape(CLOSE);
-  });
-  
-  // Near clouds (faster)
-  fill(red(skyColor)+30, green(skyColor)+30, blue(skyColor)+30, 220);
-  nearClouds.forEach(c => rect(c.x, c.y, c.w, c.h, 15));
-}
-
-function drawGround() {
-  fill(groundColor);
-  noStroke();
-  rect(0, height - groundHeight, width, groundHeight);
-}
-
-function drawObstacles() {
-  obstacles.forEach(obs => obs.draw());
+  activeBooster.draw();
+  drawMilestoneFlash();
+  drawCollisionFeedback();
 }
 
 function drawHUD() {
+  // Current score
   fill(255);
   stroke(0);
   strokeWeight(3);
   textAlign(LEFT);
-  textSize(24);
-  text(`SCORE: ${floor(score)}`, 20, 30);
+  textSize(20);
+  text(`SCORE: ${floor(score).toString().padStart(5, '0')}`, 20, 30);
+
+  // High score
+  textAlign(RIGHT);
+  const isNewHigh = floor(score) > highScore && gameState === GAME_STATE.PLAY;
+  if (isNewHigh) {
+    // Flash effect for new high score
+    fill(255, 220, 50, 200 + sin(frameCount * 0.3) * 55);
+  } else {
+    fill(200);
+  }
+  text(`HI: ${highScore.toString().padStart(5, '0')}`, width - 20, 30);
+
+  // Streak display
+  if (dino && dino.streakCount > 0 && gameState === GAME_STATE.PLAY) {
+    textAlign(LEFT);
+    textSize(14);
+    noStroke();
+    fill(255, 255, 100);
+    text(`🔥 Streak: ${dino.streakCount}`, 20, 55);
+  }
 }
 
 function drawStartScreen() {
@@ -261,225 +427,60 @@ function drawStartScreen() {
   stroke(0);
   strokeWeight(5);
   textAlign(CENTER, CENTER);
-  
+
   textSize(50);
   text('PIXEL DINO RUN', width / 2, height / 2 - 80);
-  
-  textSize(24);
-  text('Press SPACE or Click to JUMP', width / 2, height / 2);
-  
+
+  textSize(22);
+  text('Press SPACE / Click to JUMP', width / 2, height / 2 - 10);
+
+  textSize(18);
+  fill(200);
+  text('DOWN ARROW to CROUCH', width / 2, height / 2 + 25);
+
   textSize(20);
-  text('Press ANY KEY or Click to START', width / 2, height / 2 + 50);
+  fill(255);
+  text('Press ANY KEY or Click to START', width / 2, height / 2 + 65);
+
+  // Show high score if exists
+  if (highScore > 0) {
+    textSize(16);
+    fill(255, 220, 50);
+    noStroke();
+    text(`Best: ${highScore}`, width / 2, height / 2 + 100);
+  }
 }
 
 function drawGameOverScreen() {
+  // Semi-transparent backdrop
+  noStroke();
+  fill(0, 0, 0, 150);
+  rect(0, 0, width, height);
+
   fill(255, 50, 50);
   stroke(0);
   strokeWeight(7);
   textAlign(CENTER, CENTER);
-  
+
   textSize(60);
   text('GAME OVER', width / 2, height / 2 - 80);
 
   fill(255);
   strokeWeight(5);
   textSize(30);
-  text(`Final Score: ${floor(score)}`, width / 2, height / 2);
-  
-  textSize(20);
-  text('Press ANY KEY or Click to RESTART', width / 2, height / 2 + 50);
-}
+  text(`Score: ${floor(score)}`, width / 2, height / 2 - 10);
 
-/**
- * A generic function to draw pixel art from a string array.
- * @param {string[]} artArray The array of strings representing the art.
- * @param {number} x The top-left x-coordinate to start drawing.
- * @param {number} y The top-left y-coordinate to start drawing.
- * @param {number} pixelSize The size of each "pixel" block.
- */
-function drawPixelArt(artArray, x, y, pixelSize) {
-  for (let i = 0; i < artArray.length; i++) {
-    for (let j = 0; j < artArray[i].length; j++) {
-      if (artArray[i][j] === '█') {
-        rect(x + j * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
-      }
-    }
-  }
-}
-
-// =================================================================
-// Update Functions
-// =================================================================
-
-function updateObstacles() {
-  // Spawn new obstacles
-  obstacleTimer += deltaTime;
-  if (obstacleTimer > nextObstacleTime) {
-    obstacles.push(new Obstacle());
-    setNextObstacleTime();
+  // High score
+  textSize(22);
+  if (floor(score) >= highScore) {
+    fill(255, 220, 50);
+    text(`🏆 NEW HIGH SCORE! 🏆`, width / 2, height / 2 + 30);
+  } else {
+    fill(200);
+    text(`Best: ${highScore}`, width / 2, height / 2 + 30);
   }
 
-  // Update existing obstacles
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].update();
-    if (obstacles[i].isOffscreen()) {
-      obstacles.splice(i, 1);
-    }
-    
-    // Check for collision
-    if (obstacles[i].collidesWith(dino)) {
-      gameState = 'GAME_OVER';
-    }
-  }
-}
-
-function setNextObstacleTime() {
-  obstacleTimer = 0;
-  // Make obstacles appear faster as game speed increases
-  let baseTime = 1500;
-  nextObstacleTime = random(baseTime, baseTime * 1.5) / (gameSpeed / initialGameSpeed);
-}
-
-function updateBackgroundElements() {
-  // Parallax scrolling
-  mountains.forEach(m => {
-    m.x -= gameSpeed * 0.1;
-    if (m.x + m.w < 0) { m.x = width + random(50); }
-  });
-  farClouds.forEach(c => {
-    c.x -= gameSpeed * 0.2;
-    if (c.x + c.w < 0) { c.x = width + random(50); }
-  });
-  nearClouds.forEach(c => {
-    c.x -= gameSpeed * 0.5;
-    if (c.x + c.w < 0) { c.x = width + random(50); }
-  });
-}
-
-function updateColors() {
-    // Define keyframe colors for the day/night cycle
-    const noonSky = color(135, 206, 235);
-    const duskSky = color(255, 140, 0);
-    const nightSky = color(25, 25, 112);
-    const dawnSky = color(255, 105, 180);
-
-    const noonGround = color(139, 69, 19);
-    const nightGround = color(47, 23, 7);
-
-    const noonMountain = color(169, 169, 169);
-    const nightMountain = color(60, 60, 60);
-
-    if (timeOfDay < 0.25) { // Day -> Dusk
-        let t = map(timeOfDay, 0, 0.25, 0, 1);
-        skyColor = lerpColor(noonSky, duskSky, t);
-        groundColor = lerpColor(noonGround, nightGround, t);
-        mountainColor = lerpColor(noonMountain, nightMountain, t);
-    } else if (timeOfDay < 0.5) { // Dusk -> Night
-        let t = map(timeOfDay, 0.25, 0.5, 0, 1);
-        skyColor = lerpColor(duskSky, nightSky, t);
-        groundColor = nightGround;
-        mountainColor = nightMountain;
-    } else if (timeOfDay < 0.75) { // Night -> Dawn
-        let t = map(timeOfDay, 0.5, 0.75, 0, 1);
-        skyColor = lerpColor(nightSky, dawnSky, t);
-        groundColor = lerpColor(nightGround, noonGround, t);
-        mountainColor = lerpColor(nightMountain, noonMountain, t);
-    } else { // Dawn -> Day
-        let t = map(timeOfDay, 0.75, 1, 0, 1);
-        skyColor = lerpColor(dawnSky, noonSky, t);
-        groundColor = noonGround;
-        mountainColor = noonMountain;
-    }
-}
-
-
-// =================================================================
-// CLASSES
-// =================================================================
-
-class Dino {
-  constructor() {
-    this.pixelSize = 3;
-    this.baseY = height - groundHeight;
-    this.w = 18 * this.pixelSize; // Based on art width
-    this.h = 16 * this.pixelSize; // Based on art height
-    this.x = 60;
-    this.y = this.baseY - this.h;
-
-    this.velocityY = 0;
-    this.gravity = 0.8;
-    this.jumpForce = -18;
-    this.onGround = true;
-  }
-
-  jump() {
-    if (this.onGround) {
-      this.velocityY = this.jumpForce;
-      this.onGround = false;
-    }
-  }
-
-  update() {
-    this.velocityY += this.gravity;
-    this.y += this.velocityY;
-
-    if (this.y >= this.baseY - this.h) {
-      this.y = this.baseY - this.h;
-      this.velocityY = 0;
-      this.onGround = true;
-    }
-  }
-
-  draw() {
-    // Choose running animation frame
-    let currentArt = (floor(frameCount / 6) % 2 === 0) ? dinoArt.run1 : dinoArt.run2;
-
-    // Set color based on day/night
-    fill(lerpColor(color(80), color(220), 0.5 + 0.5 * sin(timeOfDay * TWO_PI)));
-    noStroke();
-    drawPixelArt(currentArt, this.x, this.y, this.pixelSize);
-  }
-}
-
-class Obstacle {
-  constructor() {
-    this.pixelSize = 4;
-    let types = ['small', 'medium', 'large'];
-    this.type = random(types);
-    this.art = cactusArt[this.type];
-    
-    this.w = this.art[0].length * this.pixelSize;
-    this.h = this.art.length * this.pixelSize;
-    this.x = width;
-    this.y = height - groundHeight - this.h;
-  }
-
-  update() {
-    this.x -= gameSpeed;
-  }
-
-  draw() {
-    // Set color based on day/night
-    let baseColor = color(0, 100, 0);
-    let nightColor = color(0, 50, 0);
-    let currentColor = lerpColor(baseColor, nightColor, 0.5 - 0.5*sin(timeOfDay * TWO_PI));
-    fill(currentColor);
-    noStroke();
-    drawPixelArt(this.art, this.x, this.y, this.pixelSize);
-  }
-  
-  isOffscreen() {
-    return this.x + this.w < 0;
-  }
-  
-  collidesWith(player) {
-    // Simple Axis-Aligned Bounding Box (AABB) collision
-    let dinoBox = { x: player.x, y: player.y, w: player.w-10, h: player.h-10 }; // Make hitbox a little smaller
-    let obsBox = { x: this.x, y: this.y, w: this.w-10, h: this.h-10 };
-    
-    return dinoBox.x < obsBox.x + obsBox.w &&
-           dinoBox.x + dinoBox.w > obsBox.x &&
-           dinoBox.y < obsBox.y + obsBox.h &&
-           dinoBox.y + dinoBox.h > obsBox.y;
-  }
+  textSize(18);
+  fill(255);
+  text('Press ANY KEY or Click to RESTART', width / 2, height / 2 + 70);
 }

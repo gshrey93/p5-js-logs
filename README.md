@@ -44,14 +44,19 @@ _Configurations_: Setting objects for canvas dimensions, colors, and physics par
 _Rules Logic_: All rules logic that help build a number to be calculated basis a predeinfed series
 
 ## Release Notes
-### Summary
-This PR focuses on visual polish for the Tank Duel sketch while preserving the current gameplay loop. The goal is to improve readability and presentation without changing the underlying controls or rules.
 
-### What changed
-- Added layered sky shading and drifting clouds to improve atmosphere and overall scene depth.
-- Slowed projectile speed to a more deliberate, classic arcade pace.
-- Strengthened turn-state highlighting, launch feedback, and impact pulses to make each shot easier to follow.
-- Refined terrain and tank rendering to move the presentation away from harsh pixel-block styling and toward a cleaner modern arcade aesthetic.
+### Sketch 02: Pixel Dino Run Overhaul
+- **Modular Refactoring**: Restructured a single-file game into 5 clean modules (`config.js`, `dino.js`, `obstacle.js`, `booster.js`, `environment.js`) orchestrated by a minimal `sketch.js`.
+- **Dino Animations**: Rebuilt Dino pixel art with 7 expressive animation frames (running, jumping, crouching, hit, happy).
+- **Celebration Poses**: Added a streak tracker that triggers a happy victory pose (tiny arms raised in celebration) with golden sparkle trails at milestones.
+- **Pterodactyl Obstacle**: Introduced high-level flying pterodactyl enemies requiring crouching (`DOWN_ARROW`) to avoid.
+- **Active Boosters**: Created collectible power-ups (Shield 🛡️, Magnet 🧲, Speed Burst ⚡, Slow-Mo 🐢) with timer bars and collision absorption.
+- **High-Impact Feedback**: Implemented screen shake, translucent red flash, slow-motion impact freeze, and debris particle explosions on collision.
+- **TDD Test Suite**: Created a Jest test suite with 56 passing unit tests validating all physical behaviors, hitbox shrink ratios, and power-up durations.
 
-This is a presentation and UX pass rather than a gameplay redesign.
+### Sketch 03: Artillery Duel Visual Polish
+- **Visual Polish**: Added layered sky shading, drifting clouds, and slower, more deliberate projectile flight.
+- **Feedback & Highlights**: Strengthened turn-state indicators, barrel aim lines with wind calculation, and impact rings.
+- **Architecture**: Modularized into 7 modules with a 24-test Jest suite.
+
 
