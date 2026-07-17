@@ -231,8 +231,12 @@ function updateObstacles(effectiveSpeed) {
 
 function setNextObstacleTime() {
   obstacleTimer = 0;
-  let baseTime = 1500;
-  nextObstacleTime = random(baseTime, baseTime * 1.5) / (gameSpeed / CONFIG.INITIAL_SPEED);
+  // Spawns obstacles in cyclical waves (high/low density) using sin(frameCount)
+  const cycleVal = sin(frameCount * 0.002) * 0.5 + 0.5; // 0 to 1
+  const minBase = map(cycleVal, 0, 1, 600, 1500);
+  const maxBase = map(cycleVal, 0, 1, 1000, 2600);
+  const baseTime = random(minBase, maxBase);
+  nextObstacleTime = baseTime / (gameSpeed / CONFIG.INITIAL_SPEED);
 }
 
 // ============================================================
@@ -264,8 +268,10 @@ function updateBoosters(effectiveSpeed) {
 
 function setNextBoosterTime() {
   boosterTimer = 0;
-  // Boosters are rarer than obstacles: every 10-20 seconds
-  nextBoosterTime = random(10000, 20000) / (gameSpeed / CONFIG.INITIAL_SPEED);
+  // Dynamic spawn rates: reward high streaks with slightly faster booster spawning!
+  const streakBonus = dino ? constrain(dino.streakCount * 500, 0, 4000) : 0;
+  const baseTime = random(9000, 18000) - streakBonus;
+  nextBoosterTime = max(4000, baseTime) / (gameSpeed / CONFIG.INITIAL_SPEED);
 }
 
 // ============================================================

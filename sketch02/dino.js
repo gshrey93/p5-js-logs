@@ -171,6 +171,9 @@ export class Dino {
     // Streak / celebration
     this.streakCount = 0;
     this.celebrationTimer = 0;
+
+    // Dust trail particles
+    this.dustParticles = [];
   }
 
   jump() {
@@ -182,7 +185,6 @@ export class Dino {
 
   crouch() {
     this.isCrouching = true;
-    // Reposition so feet stay on the ground
     if (this.onGround) {
       this.y = this.baseY - this.crouchH;
     }
@@ -205,6 +207,30 @@ export class Dino {
       this.y = this.baseY - currentH;
       this.velocityY = 0;
       this.onGround = true;
+    }
+
+    // Spawn running dust particles
+    if (this.onGround && frameCount % 6 === 0) {
+      this.dustParticles.push({
+        x: this.x + 4,
+        y: this.baseY - 4,
+        vx: random(-2, -0.5),
+        vy: random(-1.5, -0.5),
+        size: random(2, 6),
+        life: 25,
+      });
+    }
+
+    // Update dust particles
+    for (let i = this.dustParticles.length - 1; i >= 0; i--) {
+      const p = this.dustParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05; // slight gravity for dust settling
+      p.life--;
+      if (p.life <= 0) {
+        this.dustParticles.splice(i, 1);
+      }
     }
 
     // Tick celebration timer
@@ -258,14 +284,38 @@ export class Dino {
   }
 
   draw(timeOfDay) {
+    // 1. Draw dust particles first
+    push();
+    noStroke();
+    this.dustParticles.forEach(p => {
+      // Dust turns darker at night
+      const dustColorVal = map(sin(timeOfDay * TWO_PI), -1, 1, 50, 180);
+      fill(dustColorVal, dustColorVal * 0.9, dustColorVal * 0.8, map(p.life, 0, 25, 0, 180));
+      rect(p.x, p.y, p.size, p.size);
+    });
+    pop();
+
     const currentArt = this.getCurrentArt(timeOfDay);
 
-    // Day/night adaptive color
-    fill(lerpColor(color(80), color(220), 0.5 + 0.5 * sin(timeOfDay * TWO_PI)));
-    noStroke();
-    drawPixelArt(currentArt, this.x, this.y, this.pixelSize);
+    // 2. High-contrast colors
+    // Main Body: a solid rich charcoal grey so it is always visible
+    const mainColor = color(50, 55, 65);
 
-    // Celebration sparkles when timer is active
+    // Dynamic Outline: Black in daytime, glowing neon cyan/blue at night
+    const isNight = timeOfDay > 0.3 && timeOfDay < 0.7;
+    let outlineColor;
+    if (isNight) {
+      // Glowing neon outline at night
+      const glowPulse = sin(frameCount * 0.1) * 40 + 200;
+      outlineColor = color(0, glowPulse, 255, 230);
+    } else {
+      // Crisp solid black outline in the day
+      outlineColor = color(10, 12, 16);
+    }
+
+    drawPixelArt(currentArt, this.x, this.y, this.pixelSize, mainColor, outlineColor);
+
+    // 3. Celebration sparkles when timer is active
     if (this.celebrationTimer > 0) {
       this.drawCelebrationSparkles();
     }
@@ -291,11 +341,42 @@ export class Dino {
   }
 }
 
-// --- Pixel art renderer (shared utility) ---
-export function drawPixelArt(artArray, x, y, pixelSize) {
+// --- Pixel art renderer (with outline & color layers) ---
+export function drawPixelArt(artArray, x, y, pixelSize, mainColor, outlineColor) {
+  // 1. Draw outline first if provided
+  if (outlineColor) {
+    fill(outlineColor);
+    noStroke();
+    const d = 1.2; // small offset for smooth outline
+    const offsets = [
+      [-d, 0], [d, 0], [0, -d], [0, d],
+      [-d, -d], [d, -d], [-d, d], [d, d]
+    ];
+    for (const off of offsets) {
+      for (let i = 0; i < artArray.length; i++) {
+        for (let j = 0; j < artArray[i].length; j++) {
+          const char = artArray[i][j];
+          if (char === '█' || char === '░' || char === 'X') {
+            rect(x + j * pixelSize + off[0], y + i * pixelSize + off[1], pixelSize, pixelSize);
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Draw actual layers
+  noStroke();
   for (let i = 0; i < artArray.length; i++) {
     for (let j = 0; j < artArray[i].length; j++) {
-      if (artArray[i][j] === '█') {
+      const char = artArray[i][j];
+      if (char === '█') {
+        fill(mainColor);
+        rect(x + j * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
+      } else if (char === '░') {
+        fill(255); // White eye highlight
+        rect(x + j * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
+      } else if (char === 'X') {
+        fill(255, 60, 60); // Red cross eye for collision
         rect(x + j * pixelSize, y + i * pixelSize, pixelSize, pixelSize);
       }
     }

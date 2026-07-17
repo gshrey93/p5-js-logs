@@ -10,6 +10,7 @@ export const envState = {
   farClouds: [],
   nearClouds: [],
   mountains: [],
+  stars: [],
   timeOfDay: 0,
   skyColor: null,
   groundColor: null,
@@ -24,6 +25,18 @@ export function initEnvironment() {
   envState.mountains = [];
   envState.farClouds = [];
   envState.nearClouds = [];
+  envState.stars = [];
+
+  // Drift stars (spawns 35 stars)
+  for (let i = 0; i < 35; i++) {
+    envState.stars.push({
+      x: random(width),
+      y: random(0, height - CONFIG.GROUND_HEIGHT - 100),
+      size: random(1.5, 3.8),
+      speed: random(0.08, 0.28),
+      blinkOffset: random(100),
+    });
+  }
 
   for (let i = 0; i < 5; i++) {
     envState.mountains.push({
@@ -95,7 +108,22 @@ export function updateColors() {
 export function drawBackground() {
   background(envState.skyColor);
 
-  // Sun / Moon
+  // 1. Draw stars if it is night/dusk/dawn
+  const isNightVal = sin(envState.timeOfDay * TWO_PI); // ranges from -1 (night) to 1 (day)
+  if (isNightVal < 0.6) {
+    const starAlpha = map(isNightVal, 0.6, -1, 0, 220); // full brightness at midnight (-1)
+    push();
+    noStroke();
+    envState.stars.forEach(s => {
+      // Small blinking animation using sin
+      const blink = sin(frameCount * 0.04 + s.blinkOffset) * 0.5 + 0.5;
+      fill(255, 255, 255, starAlpha * (0.3 + 0.7 * blink));
+      rect(s.x, s.y, s.size, s.size);
+    });
+    pop();
+  }
+
+  // 2. Sun / Moon
   const sunMoonX = width / 2;
   const sunMoonY = map(sin(envState.timeOfDay * TWO_PI), -1, 1, height / 2, 50);
   const isSun = envState.timeOfDay < 0.25 || envState.timeOfDay > 0.75;
@@ -103,7 +131,7 @@ export function drawBackground() {
   noStroke();
   ellipse(sunMoonX, sunMoonY, 50, 50);
 
-  // Far clouds (slowest layer)
+  // 3. Far clouds (slowest layer)
   fill(
     red(envState.skyColor) + 15,
     green(envState.skyColor) + 15,
@@ -112,7 +140,7 @@ export function drawBackground() {
   );
   envState.farClouds.forEach(c => rect(c.x, c.y, c.w, c.h, 10));
 
-  // Mountains
+  // 4. Mountains
   fill(envState.mountainColor);
   envState.mountains.forEach(m => {
     beginShape();
@@ -122,7 +150,7 @@ export function drawBackground() {
     endShape(CLOSE);
   });
 
-  // Near clouds (faster layer)
+  // 5. Near clouds (faster layer)
   fill(
     red(envState.skyColor) + 30,
     green(envState.skyColor) + 30,
@@ -143,6 +171,15 @@ export function drawGround() {
 // ============================================================
 
 export function updateBackgroundElements(gameSpeed) {
+  // Move stars slowly to the left
+  envState.stars.forEach(s => {
+    s.x -= gameSpeed * s.speed;
+    if (s.x < 0) {
+      s.x = width;
+      s.y = random(0, height - CONFIG.GROUND_HEIGHT - 100);
+    }
+  });
+
   envState.mountains.forEach(m => {
     m.x -= gameSpeed * 0.1;
     if (m.x + m.w < 0) m.x = width + random(50);

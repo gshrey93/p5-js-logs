@@ -16,18 +16,28 @@ export const cactusArt = {
     " █   ",
   ],
   medium: [
-    "  █   ",
-    "█ █ ██",
-    "█ █ █ ",
-    "  █   ",
-    "  █   ",
+    "   █   ",
+    "   █   ",
+    " █ █ █ ",
+    "███████",
+    " █████ ",
+    "   █   ",
+    "   █   ",
+    "   █   "
   ],
   large: [
-    " █  █ ",
-    "██  █ ",
-    "███ █ ",
-    "  █   ",
-    "  █   ",
+    "    ██    ",
+    "    ██    ",
+    " █  ██  █ ",
+    "██  ██  ██",
+    "██████████",
+    " ████████ ",
+    "    ██    ",
+    "    ██    ",
+    "    ██    ",
+    "    ██    ",
+    "    ██    ",
+    "    ██    "
   ],
 };
 
@@ -65,7 +75,7 @@ export class Obstacle {
     this.scored = false; // has the dino passed this obstacle?
 
     // Decide type — pterodactyl only after score 200
-    const usePtero = (score || 0) > 200 && Math.random() < 0.3;
+    const usePtero = (score || 0) > 200 && Math.random() < 0.35;
 
     if (usePtero) {
       this.type = 'pterodactyl';
@@ -76,7 +86,7 @@ export class Obstacle {
       this.h = this.art.length * this.pixelSize;
       this.x = CONFIG.CANVAS_WIDTH;
       // Fly at head height (upper half of play area)
-      this.y = CONFIG.CANVAS_HEIGHT - CONFIG.GROUND_HEIGHT - this.h - random(40, 80);
+      this.y = CONFIG.CANVAS_HEIGHT - CONFIG.GROUND_HEIGHT - this.h - random(35, 75);
       this.isFlying = true;
     } else {
       this.type = random(['small', 'medium', 'large']);
@@ -91,7 +101,9 @@ export class Obstacle {
   }
 
   update(gameSpeed) {
-    this.x -= gameSpeed;
+    // Pterodactyls fly 35% faster than ground speed for dynamic challenge!
+    const effectiveSpeed = this.type === 'pterodactyl' ? gameSpeed * 1.35 : gameSpeed;
+    this.x -= effectiveSpeed;
   }
 
   isOffscreen() {
@@ -126,23 +138,29 @@ export class Obstacle {
   }
 
   draw(timeOfDay) {
+    const isNight = timeOfDay > 0.3 && timeOfDay < 0.7;
+
+    // Adaptive Outline Color: Dark in day, glowing neon red/orange for danger at night
+    let outlineColor;
+    if (isNight) {
+      outlineColor = color(255, 100, 50, 220); // neon orange warning outline at night
+    } else {
+      outlineColor = color(15, 20, 25, 230); // dark outlines in day
+    }
+
     if (this.type === 'pterodactyl') {
       // Flapping animation
       const currentArt = (floor(frameCount / 8) % 2 === 0)
         ? this.artFrames.wing1
         : this.artFrames.wing2;
 
-      fill(lerpColor(color(100, 50, 50), color(60, 30, 30), 0.5 - 0.5 * sin(timeOfDay * TWO_PI)));
-      noStroke();
-      drawPixelArt(currentArt, this.x, this.y, this.pixelSize);
+      // Dark brown bird color
+      const mainColor = color(100, 60, 60);
+      drawPixelArt(currentArt, this.x, this.y, this.pixelSize, mainColor, outlineColor);
     } else {
-      // Cactus — day/night color
-      const baseColor = color(0, 100, 0);
-      const nightColor = color(0, 50, 0);
-      const currentColor = lerpColor(baseColor, nightColor, 0.5 - 0.5 * sin(timeOfDay * TWO_PI));
-      fill(currentColor);
-      noStroke();
-      drawPixelArt(this.art, this.x, this.y, this.pixelSize);
+      // Cactus: solid green body color
+      const mainColor = color(20, 140, 50);
+      drawPixelArt(this.art, this.x, this.y, this.pixelSize, mainColor, outlineColor);
     }
   }
 }
