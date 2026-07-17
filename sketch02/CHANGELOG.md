@@ -16,9 +16,13 @@ All notable changes to the **Sketch 02 (Pixel Dino Run)** endless runner game ar
 - **Trailing Running Dust**: Added a particle trail that emits dust behind the Dino's heels while running on the ground (particles darken at night).
 - **Custom Pterodactyl Speed**: Pterodactyls now fly 35% faster than ground cacti speed to add a distinct threat.
 - **Modular Refactoring**: Split monolithic code into 5 dedicated modules (`config.js`, `dino.js`, `obstacle.js`, `booster.js`, `environment.js`) orchestrated by a minimal `sketch.js`.
-- **Dino Animations**: Created a detailed pixel art style supporting 7 animation frames: running, jumping, crouching, happy (victory pose), and hit.
-- **Streak Tracker & Raised-Arms Celebration**: Tracks consecutive successful obstacle dodges. Reaching milestones (multiples of 5) triggers a human-like victory celebration pose (raised arms) with orbiting golden stars.
-- **Gameplay Boosters**: Spawns glowing, bobbing collectible power-up pickups (Shield 🛡️, Magnet 🧲, Speed Burst ⚡, Slow-Mo 🐢) with countdown timer bars.
+- **Dino Animations**: Created a detailed, expressive pixel art style supporting 7 animation frames: running (leg cycle 1/2), jumping (legs tucked), crouching (low-profile sliding 1/2), happy (arms raised in victory), and hit (dizzy eyes).
+- **Streak Tracker & Raised-Arms Celebration**: Tracks consecutive successful obstacle dodges. Reaching milestones (multiples of 5) triggers a human-like victory celebration pose (raised arms) with orbiting golden stars (⭐ ✨) and sparkling tail emitters.
+- **Gameplay Boosters**: Spawns glowing, bobbing collectible power-up pickups with dynamic countdown timer bars on the HUD:
+  - 🛡️ **Shield**: Absorbs one obstacle collision and shatters into colored particles instead of causing a game over.
+  - 🧲 **Magnet**: Pulls in score points automatically.
+  - ⚡ **Speed Burst**: Grants invincibility and temporary 2× speed with double score generation.
+  - 🐢 **Slow-Mo**: Slows down the game by 70% for **5 full seconds (300 frames)** to assist in tight reaction moments.
 - **High-Impact Collision Feedback**: Added camera screen shake, screen-wide red flash, slow-motion impact freeze, and physics-simulated particle debris explosions on crash.
 - **Persistent High Scores**: Saves and displays high scores persistently across browser refreshes via `localStorage` with Gold flash triggers.
 - **Score Milestones**: Flashes the screen white and pops up text celebrations at 100, 500, 1000, and 2000 points.
