@@ -43,20 +43,15 @@ _Configurations_: Setting objects for canvas dimensions, colors, and physics par
 
 _Rules Logic_: All rules logic that help build a number to be calculated basis a predeinfed series
 
-## Release Notes
+## Available Sketches
 
-### Sketch 02: Pixel Dino Run Overhaul
-- **Modular Refactoring**: Restructured a single-file game into 5 clean modules (`config.js`, `dino.js`, `obstacle.js`, `booster.js`, `environment.js`) orchestrated by a minimal `sketch.js`.
-- **Dino Animations**: Rebuilt Dino pixel art with 7 expressive animation frames (running, jumping, crouching, hit, happy).
-- **Celebration Poses**: Added a streak tracker that triggers a happy victory pose (tiny arms raised in celebration) with golden sparkle trails at milestones.
-- **Pterodactyl Obstacle**: Introduced high-level flying pterodactyl enemies requiring crouching (`DOWN_ARROW`) to avoid.
-- **Active Boosters**: Created collectible power-ups (Shield 🛡️, Magnet 🧲, Speed Burst ⚡, Slow-Mo 🐢) with timer bars and collision absorption.
-- **High-Impact Feedback**: Implemented screen shake, translucent red flash, slow-motion impact freeze, and debris particle explosions on collision.
-- **TDD Test Suite**: Created a Jest test suite with 56 passing unit tests validating all physical behaviors, hitbox shrink ratios, and power-up durations.
+Each sketch is located in its own directory and has a detailed README specific to its gameplay, UI, and test instructions:
 
-### Sketch 03: Artillery Duel Visual Polish
-- **Visual Polish**: Added layered sky shading, drifting clouds, and slower, more deliberate projectile flight.
-- **Feedback & Highlights**: Strengthened turn-state indicators, barrel aim lines with wind calculation, and impact rings.
-- **Architecture**: Modularized into 7 modules with a 24-test Jest suite.
+- **🦖 [Sketch 02: Pixel Dino Run](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch02/README.md)**: Chrome-style endless runner featuring modular architecture, active boosters, crouch controls, flying enemies, human-like raised-arms celebration, and a 56-test Jest suite.
+- **🕹️ [Sketch 03: Artillery Duel](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-03/README.md)**: Turn-based 2D tank battle game with procedural destructible terrain, dynamic wind/gravity, horizontal tank movement, and a 24-test Jest suite.
+- **🌀 [Sketch 04: Geometric Loops](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-04/README.md)**: Mathematical/visual loop sketch exploring geometry and Fibonacci palindrome calculations.
+- **🐦 [Sketch 05: Floppy Bird](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-05/README.md)**: Classic Flappy Bird browser game.
+- **📅 [Sketch 06: Basic Calculator](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-06/README.md)**: A progressive web application (PWA) calculator.
+
 
 
