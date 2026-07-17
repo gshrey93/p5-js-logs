@@ -4,7 +4,7 @@ All notable changes to the **Sketch 03 (Artillery Duel)** tank battle game are d
 
 ---
 
-## [Unreleased] - 2026-07-15
+## [1.0.1] - 2026-07-15
 
 ### Added
 - **Horizontal Tank Movement**: Players can now move their tanks left and right using the **`A`** and **`D`** keys during their turn, allowing them to reposition to overcome high-gravity or short-range situations.
