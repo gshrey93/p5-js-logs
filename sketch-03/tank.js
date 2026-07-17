@@ -17,7 +17,8 @@ export class Tank {
 
   applyDamage(damage) {
     this.health -= damage;
-    if (this.health < 0) {
+    // Clamp to 0 if health drops below 0.5 (which rounds down to 0 on HUD)
+    if (this.health < 0.5) {
       this.health = 0;
     }
   }

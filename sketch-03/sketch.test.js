@@ -101,6 +101,12 @@ describe('Artillery Duel Game Logic', () => {
       expect(tank.health).toBe(0);
     });
 
+    test('should clamp health to 0 if damage leaves it below 0.5', () => {
+      tank.health = 1.0;
+      tank.applyDamage(0.6); // 1.0 - 0.6 = 0.4 (< 0.5)
+      expect(tank.health).toBe(0);
+    });
+
     test('should reduce health by damage amount', () => {
       tank.applyDamage(30);
       expect(tank.health).toBe(70);

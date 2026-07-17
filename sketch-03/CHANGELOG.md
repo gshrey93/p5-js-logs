@@ -31,3 +31,5 @@ All notable changes to the **Sketch 03 (Artillery Duel)** tank battle game are d
 ### Fixed
 - **Missing `Math.sign()` Crash**: Resolved a critical runtime crash where the wind indicator indicator crashed due to a missing `Math.sign()` call.
 - **State Enum Consistency**: Replaced all raw state string checks with static `GAME_STATE` references.
+- **HP Rounding Game Over Bug**: Clamped health to 0 when it drops below 0.5 (which is when the HUD rounds it to 0). This prevents the game from continuing to the next turn when a player appears to have 0 HP.
+
