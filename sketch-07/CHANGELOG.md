@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.1.0] - 2026-07-20
 ### Changed
 - **Architecture**: Modularized the monolithic `sketch.js` file by moving game entities (`Player`, `Enemy`, `Projectile`, `Powerup`, `Particle`, `FloatingText`) into their own ES modules inside the `src/components/` directory.
 - **State Management**: Extracted global variables into `src/state.js` and constants into `src/constants.js` to decouple logic from the global `window` object.
