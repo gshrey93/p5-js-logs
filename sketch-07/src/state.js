@@ -9,6 +9,10 @@ export const state = {
   highScore: 0,
   level: 1,
   bossActive: false,
+  lastBossLevel: 0,
+  nextBossLevel: 5, // First boss at Level 5
+  scrollSpeed: 1.0,
+  targetScrollSpeed: 1.0,
   shakeTime: 0,
   shakeIntensity: 0
 };

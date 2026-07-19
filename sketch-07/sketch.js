@@ -62,6 +62,10 @@ function resetGame() {
   state.score = 0;
   state.level = 1;
   state.bossActive = false;
+  state.lastBossLevel = 0;
+  state.nextBossLevel = 5; // First boss at Level 5
+  state.scrollSpeed = 1.0;
+  state.targetScrollSpeed = 1.0;
   state.gameState = 'START';
 }
 
@@ -107,7 +111,7 @@ function drawGrid() {
   for (let x = 0; x <= width; x += 40) {
     line(x, 0, x, height);
   }
-  gridY = (gridY + 1.5) % 40;
+  gridY = (gridY + 1.5 * state.scrollSpeed) % 40;
   for (let y = gridY; y < height; y += 40) {
     line(0, y, width, y);
   }
@@ -118,7 +122,7 @@ function drawStars() {
   fill(255, 255, 255, 180);
   for (let star of stars) {
     ellipse(star.x, star.y, star.size, star.size);
-    star.y += star.speed;
+    star.y += star.speed * state.scrollSpeed;
     if (star.y > height) {
       star.y = 0;
       star.x = random(width);
@@ -127,6 +131,10 @@ function drawStars() {
 }
 
 function updateGame() {
+  // Interpolate auto-scroll speed for Arena mode
+  state.targetScrollSpeed = state.bossActive ? 0.0 : 1.0;
+  state.scrollSpeed = lerp(state.scrollSpeed, state.targetScrollSpeed, 0.05);
+
   player.update();
 
   for (let i = state.powerups.length - 1; i >= 0; i--) {
@@ -237,10 +245,13 @@ function updateGame() {
 function spawnEnemies() {
   let spawnDelay = max(1000 - state.level * 100, 400);
 
-  if (state.score > 0 && state.score % 2000 === 0 && !state.bossActive && state.enemies.length === 0) {
+  // Endless Algorithmic Boss Spawning
+  if (state.level >= state.nextBossLevel && !state.bossActive && state.enemies.length === 0) {
     state.enemies.push(new Enemy('boss'));
     state.bossActive = true;
-    state.floatingTexts.push(new FloatingText(width / 2, height / 2, "BOSS INCOMING!", COLORS.boss));
+    state.lastBossLevel = state.level;
+    state.nextBossLevel = state.level + floor(random(5, 9)); // Next boss in 5 to 8 levels
+    state.floatingTexts.push(new FloatingText(width / 2, height / 2, `LEVEL ${state.level} BOSS ARENA!`, COLORS.boss));
     if (window.sounds) window.sounds.playPowerup();
   } 
 
@@ -267,6 +278,18 @@ function drawGame() {
   for (let enemy of state.enemies) enemy.draw();
   for (let p of state.particles) p.draw();
   for (let ft of state.floatingTexts) ft.draw();
+
+  // Boss Warning Banner Overlay
+  if (state.bossActive && frameCount % 30 < 20) {
+    push();
+    textSize(14);
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    fill('#ff0055');
+    noStroke();
+    text(`⚠️ WARNING: BOSS ARENA LOCK (LEVEL ${state.level}) ⚠️`, width / 2, 40);
+    pop();
+  }
 }
 
 function drawStartScreen() {
