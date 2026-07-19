@@ -7,9 +7,17 @@ export class Powerup {
     this.size = 20;
     this.speed = 1.8;
     
-    // Randomly choose powerup type
-    const types = ['shield', 'triple', 'beam', 'repair'];
-    this.type = random(types);
+    // Weighted selection to make repair powerups rarer (10% chance) and increase difficulty
+    const rand = random();
+    if (rand < 0.35) {
+      this.type = 'triple';
+    } else if (rand < 0.70) {
+      this.type = 'beam';
+    } else if (rand < 0.90) {
+      this.type = 'shield';
+    } else {
+      this.type = 'repair';
+    }
     
     this.color = COLORS.powerup;
   }

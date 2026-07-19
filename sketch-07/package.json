@@ -1,6 +1,6 @@
 {
   "name": "sketch-07-neon-strike",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Neon Strike - Retro Arcade Space Shooter",
   "scripts": {
     "test": "jest"

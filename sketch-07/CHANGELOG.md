@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-07-20
+### Changed
+- **Difficulty**: Reduced the spawn probability of the **Repair** (`H`) powerup to 10% (down from 25%) via weighted selection to increase game difficulty and survival challenge.
+
 ## [1.1.0] - 2026-07-20
 ### Changed
 - **Architecture**: Modularized the monolithic `sketch.js` file by moving game entities (`Player`, `Enemy`, `Projectile`, `Powerup`, `Particle`, `FloatingText`) into their own ES modules inside the `src/components/` directory.
