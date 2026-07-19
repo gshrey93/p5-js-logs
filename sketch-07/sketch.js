@@ -376,8 +376,8 @@ class Player {
     this.shieldTime = 0;
     
     // Weapons
-    this.weaponType = 'normal';
-    this.weaponTime = 0;
+    this.tripleTime = 0;
+    this.beamTime = 0;
   }
 
   update() {
@@ -410,9 +410,12 @@ class Player {
       if (this.shieldTime <= 0) this.shieldActive = false;
     }
 
-    if (this.weaponType !== 'normal') {
-      this.weaponTime -= deltaTime;
-      if (this.weaponTime <= 0) this.weaponType = 'normal';
+    if (this.tripleTime > 0) {
+      this.tripleTime -= deltaTime;
+    }
+
+    if (this.beamTime > 0) {
+      this.beamTime -= deltaTime;
     }
 
     // Spawn thruster trails
@@ -428,8 +431,9 @@ class Player {
     // Update active powerup text
     let pwrLabel = "NONE";
     if (this.shieldActive) pwrLabel = "SHIELD (" + ceil(this.shieldTime / 1000) + "s)";
-    else if (this.weaponType === 'triple') pwrLabel = "TRIPLE SHOT (" + ceil(this.weaponTime / 1000) + "s)";
-    else if (this.weaponType === 'beam') pwrLabel = "PLASMA BEAM (" + ceil(this.weaponTime / 1000) + "s)";
+    else if (this.tripleTime > 0 && this.beamTime > 0) pwrLabel = "TRIPLE BEAM (" + ceil(max(this.tripleTime, this.beamTime) / 1000) + "s)";
+    else if (this.tripleTime > 0) pwrLabel = "TRIPLE SHOT (" + ceil(this.tripleTime / 1000) + "s)";
+    else if (this.beamTime > 0) pwrLabel = "PLASMA BEAM (" + ceil(this.beamTime / 1000) + "s)";
     document.getElementById('hud-powerup').innerText = pwrLabel;
   }
 
@@ -470,17 +474,18 @@ class Player {
   shoot() {
     if (window.sounds) window.sounds.playLaser();
 
-    if (this.weaponType === 'normal') {
-      projectiles.push(new Projectile(this.x, this.y - this.height/2, 0, -8, true));
-    } 
-    else if (this.weaponType === 'triple') {
-      projectiles.push(new Projectile(this.x, this.y - this.height/2, 0, -8, true));
-      projectiles.push(new Projectile(this.x, this.y - this.height/2, -2, -7.5, true));
-      projectiles.push(new Projectile(this.x, this.y - this.height/2, 2, -7.5, true));
-    } 
-    else if (this.weaponType === 'beam') {
-      // High-power Plasma Beam
-      projectiles.push(new Projectile(this.x, this.y - this.height/2, 0, -12, true, 'beam'));
+    let isTriple = this.tripleTime > 0;
+    let isBeam = this.beamTime > 0;
+    let type = isBeam ? 'beam' : 'normal';
+    let vy = isBeam ? -12 : -8;
+
+    if (isTriple) {
+      projectiles.push(new Projectile(this.x, this.y - this.height/2, 0, vy, true, type));
+      let sideVy = isBeam ? -11.5 : -7.5;
+      projectiles.push(new Projectile(this.x, this.y - this.height/2, -2, sideVy, true, type));
+      projectiles.push(new Projectile(this.x, this.y - this.height/2, 2, sideVy, true, type));
+    } else {
+      projectiles.push(new Projectile(this.x, this.y - this.height/2, 0, vy, true, type));
     }
   }
 
@@ -510,11 +515,9 @@ class Player {
       this.shieldActive = true;
       this.shieldTime = 8000; // 8 seconds
     } else if (type === 'triple') {
-      this.weaponType = 'triple';
-      this.weaponTime = 8000;
+      this.tripleTime = 8000;
     } else if (type === 'beam') {
-      this.weaponType = 'beam';
-      this.weaponTime = 5000; // 5 seconds
+      this.beamTime = 5000; // 5 seconds
     } else if (type === 'repair') {
       this.health = min(this.health + 40, this.maxHealth);
     }

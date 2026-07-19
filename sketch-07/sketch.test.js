@@ -111,7 +111,8 @@ describe('Player Logic', () => {
     expect(player.y).toBe(570); // height - 80
     expect(player.health).toBe(100);
     expect(player.shieldActive).toBe(false);
-    expect(player.weaponType).toBe('normal');
+    expect(player.tripleTime).toBe(0);
+    expect(player.beamTime).toBe(0);
   });
 
   test('updates position towards mouse cursor', () => {
@@ -157,6 +158,16 @@ describe('Player Logic', () => {
     player.applyPowerup('triple');
     player.shoot();
     expect(global.projectiles.length).toBe(3);
+  });
+
+  test('triple shot and plasma beam powerups can stack', () => {
+    player.applyPowerup('triple');
+    player.applyPowerup('beam');
+    player.shoot();
+    expect(global.projectiles.length).toBe(3);
+    expect(global.projectiles[0].type).toBe('beam');
+    expect(global.projectiles[1].type).toBe('beam');
+    expect(global.projectiles[2].type).toBe('beam');
   });
 
   test('health repair heals player but stays within max limit', () => {
