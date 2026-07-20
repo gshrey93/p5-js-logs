@@ -47,7 +47,7 @@ _Rules Logic_: All rules logic that help build a number to be calculated basis a
 
 Each sketch is located in its own directory and has a detailed README specific to its gameplay, UI, and test instructions:
 
-- **🦖 [Sketch 02: Pixel Dino Run](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch02/README.md)**: Chrome-style endless runner featuring modular architecture, active boosters, crouch controls, flying enemies, human-like raised-arms celebration, and a 56-test Jest suite.
+- **🦖 [Sketch 02: Pixel Dino Run](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-02/README.md)**: Chrome-style endless runner featuring modular architecture, active boosters, crouch controls, flying enemies, human-like raised-arms celebration, and a 56-test Jest suite.
 - **🕹️ [Sketch 03: Artillery Duel](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-03/README.md)**: Turn-based 2D tank battle game with procedural destructible terrain, dynamic wind/gravity, horizontal tank movement, and a 24-test Jest suite.
 - **🌀 [Sketch 04: Geometric Loops](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-04/README.md)**: Mathematical/visual loop sketch exploring geometry and Fibonacci palindrome calculations.
 - **🐦 [Sketch 05: Floppy Bird](file:///Users/shreyash/Desktop/Antigravity%20Repo/p5-js-logs/sketch-05/README.md)**: Classic Flappy Bird browser game.

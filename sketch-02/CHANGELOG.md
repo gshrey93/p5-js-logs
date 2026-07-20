@@ -2,6 +2,14 @@
 
 All notable changes to the **Sketch 02 (Pixel Dino Run)** endless runner game are documented in this file.
 
+## [1.2.1] - 2026-07-20
+
+### Changed
+- **Directory Naming Standardization**: Renamed project directory from `sketch02` to `sketch-02` to adhere to repository-wide `sketch-XX` naming conventions.
+- **Dependency & Reference Updates**: Updated directory path references across root `index.html` navigation cards and root `README.md` documentation links.
+- **Package Metadata**: Updated `package.json` and `package-lock.json` package name from `sketch02-dino-run` to `sketch-02-dino-run` and bumped version to `1.2.1`.
+- **Local Documentation**: Updated setup and run instructions in `sketch-02/README.md`.
+
 ---
 
 ## [1.2.0] - 2026-07-17

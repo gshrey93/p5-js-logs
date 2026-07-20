@@ -52,7 +52,7 @@ This project includes a Jest-based test suite verifying all physics, hitboxes, s
 
 1. Navigate to the sketch directory:
    ```bash
-   cd sketch02
+   cd sketch-02
    ```
 
 2. Install dependencies:
