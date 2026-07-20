@@ -2,6 +2,12 @@
 
 All notable changes to the **Sketch 04 (Fibonacci Palindrome Finder)** sketch are documented in this file.
 
+## [1.1.0] - 2026-07-20
+
+### Changed
+- **Zero-Dependency Native Testing**: Migrated automated test runner to Node.js native test runner (`test-native.js`), enabling all 21 unit tests to run in under 30ms with zero disk overhead.
+- **Repository Cleanup**: Removed `node_modules` and `package-lock.json` from `sketch-04`, keeping the codebase lightweight and eliminate VDI/NVM disk bloat.
+
 ---
 
 ## [1.0.1] - 2026-07-20
