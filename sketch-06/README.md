@@ -1,44 +1,100 @@
 # Calculator and Unit Converter PWA
 
-A clean, responsive, and fully functional Calculator and Unit Converter built as a Progressive Web App (PWA). This application is designed to be lightweight, running perfectly from a single HTML file and a combined JavaScript file. It is fully optimized for easy deployment on GitHub Pages.
+A clean, responsive, and fully functional Calculator and Unit Converter built as a Progressive Web App (PWA) using modern ES6 modules. Designed to be lightweight and fast, running natively in web browsers and fully optimized for desktop and mobile devices.
 
-## 🚀 Features
+---
+
+## ✨ Features
 
 | Feature | Description |
 |---|---|
-| **Dual Functionality** | Seamlessly switch between a standard calculator and a comprehensive unit converter. |
-| **Unit Converter** | Supports conversions for Length, Weight/Mass, Area, Volume, Speed, and Temperature. |
-| **History Manager** | Automatically tracks and saves past calculations and conversions using local storage. Click any history item to instantly reuse the result. |
-| **Theme Manager** | Includes a built-in Dark/Light mode toggle that respects user preferences and remembers them for future visits. |
-| **Keyboard Support** | Fully supports physical keyboard input for fast, seamless calculations on desktop devices. |
-| **Clipboard Support** | Long-press or click the result display to quickly copy the value to your clipboard. |
-| **PWA Ready** | Comes with a `manifest.json` and supports mobile/desktop installation. |
+| **Dual Functionality** | Seamlessly switch between a standard arithmetic calculator and a comprehensive unit converter. |
+| **Percentage Calculations** | Supports additive (`200 + 15% = 230`) and multiplicative (`200 × 15% = 30`) percentage operations. |
+| **Repeated Equals (`=`)** | Re-applies the last operator and operand sequentially (e.g., `5 + 3 = 8`, pressing `=` yields `11`, then `14`). |
+| **Unit Converter** | Supports exact-ratio conversions for Length, Weight/Mass, Area, Volume, Speed, and Temperature (with Absolute Zero validation). |
+| **History Manager** | Automatically tracks and saves calculation and conversion logs in LocalStorage. Tap or press `Enter` on any item to reuse the result. |
+| **Theme Manager** | Includes a built-in Dark/Light mode toggle that respects system preferences and persists choice. |
+| **Keyboard Support** | Supports physical keyboard inputs: digits (`0-9`), operators (`+`, `-`, `*`, `/`, `x`, `X`), decimal (`.`), percentage (`%`), evaluate (`Enter`, `=`), backspace (`Backspace`), and clear (`Escape`, `C`, `Delete`). |
+| **Clipboard Integration** | Long-press or click the display to quickly copy calculation results to clipboard. |
+| **PWA Ready** | Includes `manifest.json` and icon sets for mobile/desktop standalone installation. |
+
+---
 
 ## 🛠️ Technologies Used
 
 | Technology | Purpose |
 |---|---|
-| **HTML5** | Application structure and semantic elements. |
-| **CSS3** | Responsive design, CSS variables for theming, CSS Grid, and Flexbox layouts. |
-| **JavaScript (ES6+)** | Core logic, event bus architecture, modular engines, and local storage management. |
+| **HTML5** | Application structure, accessibility attributes (`aria-*`), and semantic elements. |
+| **CSS3** | Responsive grid/flexbox layouts, CSS custom properties (variables) for live theming. |
+| **JavaScript (ES6+)** | Decoupled ES modules, event bus architecture, calculation engine, and LocalStorage persistence. |
+| **Jest & Babel** | Automated unit test suite with ES module transformation. |
 
-## 📂 Project Structure
+---
 
-| File/Folder | Purpose |
+## 📂 Project & Module Structure
+
+```
+sketch-06/
+├── index.html                  # Main HTML structure & styling (loads type="module" src="sketch.js")
+├── sketch.js                   # Main Orchestrator entrypoint
+├── CHANGELOG.md                # Release version history
+├── README.md                   # Project documentation
+├── package.json & babel.config.js # Jest testing setup
+├── sketch.test.js              # Automated Jest unit test suite
+├── manifest.json               # Web App Manifest for PWA features
+├── icons/                      # App icon assets
+└── js/                         # ES6 Module Directory
+    ├── event-bus.js            # Pub/Sub EventBus messaging
+    ├── storage-service.js      # LocalStorage abstraction utility
+    ├── utils.js                # Decimal rounding & zero-stripping (roundTo6)
+    ├── theme-manager.js        # ThemeManager class (Dark/Light mode)
+    ├── calculator-engine.js    # CalculatorEngine class (arithmetic state machine & keyboard listener)
+    ├── conversion-registry.js  # Conversion factors (FACTORS) & temperature algorithms
+    ├── unit-converter.js       # UnitConverter DOM controller
+    └── history-manager.js      # HistoryManager log & LocalStorage persistence
+```
+
+### ⚙️ Core Modules Reference
+
+| Module | Responsibility |
 |---|---|
-| `index.html` | The main entry point containing the DOM structure and inline CSS styles. |
-| `sketch.js` | The combined JavaScript application logic (Engine, UI handling, Storage, etc.). |
-| `manifest.json` | Web App Manifest for PWA installation features. |
-| `icons/` | Directory containing the necessary app icons for the PWA manifest. |
+| **`js/event-bus.js`** | Decoupled event emitter (`on`, `off`, `emit`) for application-wide messaging. |
+| **`js/storage-service.js`** | Safe `localStorage` getter/setter abstraction with error fallback. |
+| **`js/utils.js`** | `roundTo6(value)` helper for 6-decimal precision rounding and stripping trailing zeros. |
+| **`js/theme-manager.js`** | Toggles `.theme-dark` CSS class on `<html>` and saves preference. |
+| **`js/calculator-engine.js`** | Manages operands, operator switching, percentage scaling, repeated equals, and keyboard events. |
+| **`js/conversion-registry.js`** | Maintains conversion factors (`FACTORS`), `convertTemperature()`, and `convert()` dispatcher. |
+| **`js/unit-converter.js`** | Population of unit select dropdowns and real-time conversion updates. |
+| **`js/history-manager.js`** | Log management for calculation/conversion entries with click-to-reuse triggers. |
 
-## 💻 Installation & Setup
+---
 
-| Step | Instruction |
-|---|---|
-| 1. Clone | Clone this repository to your local machine using standard git commands. |
-| 2. Run Locally | Open `index.html` in any modern web browser. No build steps or bundlers are required! |
-| 3. Deploy | Simply push the files to a GitHub repository and enable GitHub Pages from the repository settings. |
+## 💻 Setup & Running Tests
 
-## 🤝 Usage Notes
+### Running Locally
+No build process is required for running the web app!
+1. Clone or download the repository.
+2. Open `index.html` directly in any modern web browser.
 
-The logic of this app is driven by an internal EventBus. If you wish to extend the application (for example, by adding new unit conversion categories), you simply need to update the `FACTORS` object within the `ConversionRegistry` section in `sketch.js`.
+### Running Automated Unit Tests
+1. Navigate to the `sketch-06/` directory:
+   ```bash
+   cd sketch-06
+   ```
+2. Install test dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the Jest test suite:
+   ```bash
+   npm test
+   ```
+
+---
+
+## 🤝 Extending the Application
+
+To add a new unit conversion category (for example, *Time* or *Pressure*):
+1. Open **[js/conversion-registry.js](file:///Users/shreyash/projects/Antigravity%20Repo/p5-js-logs/sketch-06/js/conversion-registry.js)**.
+2. Add the new category and unit factors relative to a base unit in the `FACTORS` object.
+3. Update `getCategories()` to include the new category name. The UI will automatically populate the dropdowns and handle conversions!
