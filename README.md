@@ -1,7 +1,7 @@
 # p5-js-logs
 All JS browser scripts coded using GenAi chats
 ## Overview
-**p5-js-logs** is a creative coding repository that started with "vibe coding" via simple ChatGPT/Gemini 2.5, with prompt refining and a lot of to-and-fro. These sketches in this repo started with monolithic sketch.js and index.html files, and over time, as I learnt to code agents, set up VSCode, browse repo folders, and finally commit syncs, I was able to break it down into modular components. It is a collection of small JavaScript utilities, interactive sketches, and games generated with assistance from various AI models and AI-powered IDEs. The project is purely front-end and is hosted live for immediate interaction.
+**p5-js-logs** is a creative coding repository that started with "vibe coding" via simple ChatGPT/Gemini 2.5, with prompt refining and a lot of to-and-fro. These sketches in this repo started with monolithic sketch.js and index.html files, and over time, as I learnt to work with code agents, set up VSCode, browse repo folders, and finally commit syncs, I was able to break it down into modular components. It is a collection of small JavaScript utilities, interactive sketches, and games generated with assistance from various AI models and AI-powered IDEs. The project is purely front-end and is hosted live for immediate interaction.
 
 Live Demo: [https://gshrey93.github.io/p5-js-logs/](https://gshrey93.github.io/p5-js-logs/)
 
