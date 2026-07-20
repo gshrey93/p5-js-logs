@@ -2,6 +2,8 @@
 
 All notable changes to the **Sketch 06 (Calculator and Unit Converter PWA)** application are documented in this file.
 
+---
+
 ## [1.1.0] - 2026-07-20
 
 ### Changed
@@ -14,8 +16,39 @@ All notable changes to the **Sketch 06 (Calculator and Unit Converter PWA)** app
   - `js/conversion-registry.js`: Unit conversion lookup & temperature calculations.
   - `js/unit-converter.js`: Converter UI controller.
   - `js/history-manager.js`: Calculation/conversion log & LocalStorage persistence.
-- **App Shell Orchestration**: Converted `sketch.js` into a lean orchestrator entrypoint coordinating component initialization and DOM event handlers.
-- **HTML Script Module Entry**: Updated `index.html` to load `<script type="module" src="sketch.js">`.
+- **App Shell Orchestration**: Converted `sketch.js` into a lean 75-line orchestrator entrypoint coordinating component initialization and DOM event handlers.
+- **HTML Script Module Entry**: Updated `index.html` to load `<script type="module" src="sketch.js"></script>`.
+
+### Architecture Overview
+
+```
+sketch-06/
+├── index.html                  # Main DOM structure (loads script type="module" src="sketch.js")
+├── sketch.js                   # AppShell Orchestrator entrypoint
+├── CHANGELOG.md                # Release documentation (v1.1.0)
+├── package.json & babel.config.js # Testing setup
+├── sketch.test.js              # Jest test suite (imports from ./js/ modules)
+└── js/                         # ES6 Module Directory
+    ├── event-bus.js            # Pub/Sub EventBus messaging
+    ├── storage-service.js      # LocalStorage abstraction
+    ├── utils.js                # roundTo6() formatting helper
+    ├── theme-manager.js        # ThemeManager class (Dark/Light mode)
+    ├── calculator-engine.js    # CalculatorEngine class (arithmetic & state machine)
+    ├── conversion-registry.js  # Conversion factors & Temperature logic
+    ├── unit-converter.js       # UnitConverter DOM controller
+    └── history-manager.js      # HistoryManager log & LocalStorage persistence
+```
+
+### Modularized Components Detail
+
+- **`js/event-bus.js`**: Decoupled event emitter (`on`, `off`, `emit`) for application-wide communication.
+- **`js/storage-service.js`**: Safe abstraction utility for LocalStorage reads, writes, and error handling.
+- **`js/utils.js`**: Extracted `roundTo6()` function for clean decimal formatting up to 6 places.
+- **`js/theme-manager.js`**: Dark/Light mode theme switching class with OS preference auto-detection.
+- **`js/calculator-engine.js`**: Core arithmetic calculator engine, state machine, and keyboard listener.
+- **`js/conversion-registry.js`**: Unit conversion factors (`FACTORS`) and `convertTemperature()` computation algorithm.
+- **`js/unit-converter.js`**: DOM controller handling unit conversion UI dropdowns and triggers.
+- **`js/history-manager.js`**: Calculation and unit conversion history list controller with LocalStorage persistence.
 
 ---
 
