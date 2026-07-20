@@ -86,7 +86,7 @@ export function getNearestPalindromeConstructive(num) {
   // to the comparison.
   const allNines = BigInt('9'.repeat(len - 1));
   const diffWithNines = num - allNines;
-  if (diffWithNines < minDiff) {
+  if (minDiff === -1n || diffWithNines < minDiff || (diffWithNines === minDiff && allNines < nearest)) {
     return allNines;
   }
 

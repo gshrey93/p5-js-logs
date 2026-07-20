@@ -1,3 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.551">
+<testsuites name="jest tests" tests="21" failures="0" errors="0" time="0.902">
+  <testsuite name="Fibonacci Palindrome Finder Logic" errors="0" failures="0" skipped="0" timestamp="2026-07-20T11:05:34" time="0.451" tests="21">
+    <testcase classname="Fibonacci Palindrome Finder Logic getFibonacci(n) F-001: should return 0n for n = 0" name="Fibonacci Palindrome Finder Logic getFibonacci(n) F-001: should return 0n for n = 0" time="0.002">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getFibonacci(n) F-002: should return 1n for n = 1" name="Fibonacci Palindrome Finder Logic getFibonacci(n) F-002: should return 1n for n = 1" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getFibonacci(n) F-005: should return 55n for n = 10" name="Fibonacci Palindrome Finder Logic getFibonacci(n) F-005: should return 55n for n = 10" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getFibonacci(n) F-006: should return 6765n for n = 20" name="Fibonacci Palindrome Finder Logic getFibonacci(n) F-006: should return 6765n for n = 20" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getFibonacci(n) F-008: should correctly calculate large numbers (n=100)" name="Fibonacci Palindrome Finder Logic getFibonacci(n) F-008: should correctly calculate large numbers (n=100)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic isPalindrome(n) P-001: should return true for a single digit (0n)" name="Fibonacci Palindrome Finder Logic isPalindrome(n) P-001: should return true for a single digit (0n)" time="0.001">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic isPalindrome(n) P-004: should return true for an odd-length palindrome (121n)" name="Fibonacci Palindrome Finder Logic isPalindrome(n) P-004: should return true for an odd-length palindrome (121n)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic isPalindrome(n) P-005: should return true for an even-length palindrome (1221n)" name="Fibonacci Palindrome Finder Logic isPalindrome(n) P-005: should return true for an even-length palindrome (1221n)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic isPalindrome(n) P-008: should return false for a non-palindrome (12n)" name="Fibonacci Palindrome Finder Logic isPalindrome(n) P-008: should return false for a non-palindrome (12n)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic isPalindrome(n) P-011: should return false for a number ending in zero (100n)" name="Fibonacci Palindrome Finder Logic isPalindrome(n) P-011: should return false for a number ending in zero (100n)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-001: should return the number itself if it is a palindrome" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-001: should return the number itself if it is a palindrome" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-002: should find the nearest smaller palindrome" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-002: should find the nearest smaller palindrome" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-003: should find the nearest larger palindrome" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-003: should find the nearest larger palindrome" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-008: should find a smaller palindrome with different length" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-008: should find a smaller palindrome with different length" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-012: should work for the Fib(20) example" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-012: should work for the Fib(20) example" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-004: should handle equidistant case (favors smaller)" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) NP-004: should handle equidistant case (favors smaller)" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) should handle a very large number" name="Fibonacci Palindrome Finder Logic getNearestPalindromeConstructive(num) should handle a very large number" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should generate an even-length palindrome from a root" name="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should generate an even-length palindrome from a root" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should generate an odd-length palindrome from a root" name="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should generate an odd-length palindrome from a root" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should handle single-digit roots" name="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should handle single-digit roots" time="0">
+    </testcase>
+    <testcase classname="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should return null for a &quot;0&quot; or empty root" name="Fibonacci Palindrome Finder Logic generatePalindromeFromRoot(root, originalLength) should return null for a &quot;0&quot; or empty root" time="0">
+    </testcase>
+  </testsuite>
 </testsuites>

@@ -65,9 +65,9 @@ describe('Fibonacci Palindrome Finder Logic', () => {
       expect(getNearestPalindromeConstructive(125n)).toBe(121n);
     });
     test('should handle a very large number', () => {
-        const largeNum = 1234567890123456789n;
-        const expectedPalindrome = 12345678987654321n;
-        expect(getNearestPalindromeConstructive(largeNum)).toBe(expectedPalindrome);
+      const largeNum = 1234567890123456789n;
+      const expectedPalindrome = 12345678987654321n;
+      expect(getNearestPalindromeConstructive(largeNum)).toBe(expectedPalindrome);
     });
   });
 

@@ -8,6 +8,7 @@ All notable changes to the **Sketch 04 (Fibonacci Palindrome Finder)** sketch ar
 
 ### Fixed
 - **Module Path Resolution**: Relocated `calculator-logic.js` into the `js/` subfolder (`sketch-04/js/calculator-logic.js`), resolving broken module import paths in `sketch.js` and `sketch.test.js` as well as aligning with `README.md` documentation.
+- **Babel & Jest ES Module Setup**: Added `babel.config.js` and updated `package.json` with `@babel/preset-env` and `babel-jest` configuration, enabling Jest to transform ES modules.
 
 ---
 
